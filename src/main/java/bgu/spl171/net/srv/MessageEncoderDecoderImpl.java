@@ -11,8 +11,6 @@ import bgu.spl171.net.srv.msg.client2server.Disconnect;
 import bgu.spl171.net.srv.msg.server2client.Acknowledge;
 import bgu.spl171.net.srv.msg.server2client.Broadcast;
 import bgu.spl171.net.srv.msg.server2client.Error;
-
-import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -108,7 +106,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
                 decodeMessage = new Disconnect();
                 break;
             default:
-                decodeMessage = null;
+                decodeMessage = new Error((short) 4);
                 break;
 
         }
@@ -116,14 +114,14 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
     }
 
 
-    public short bytesToShort(byte[] byteArr)
+    private short bytesToShort(byte[] byteArr)
     {
         short result = (short)((byteArr[0] & 0xff) << 8);
         result += (short)(byteArr[1] & 0xff);
         return result;
     }
 
-    public byte[] shortToBytes(short num)
+    private byte[] shortToBytes(short num)
     {
         byte[] bytesArr = new byte[2];
         bytesArr[0] = (byte)((num >> 8) & 0xFF);
