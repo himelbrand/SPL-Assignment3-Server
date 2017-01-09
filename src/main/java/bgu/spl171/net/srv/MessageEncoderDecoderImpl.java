@@ -22,7 +22,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
     private byte[] bytes = new byte[1 << 10]; //start with 1k
     private int len = 0;
     private short opCode =0;
-    private short datePacketSize =0;
+    private int datePacketSize =0;
 
     @Override
     public byte[] encode(Message message) {
@@ -88,6 +88,8 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
                 short dataSize=bytesToShort(Arrays.copyOfRange(tempArray,2,4));
                 short blockNum=bytesToShort(Arrays.copyOfRange(tempArray,4,6));
                 decodeMessage = new DataMessage(dataSize,blockNum,tempArray);
+
+                datePacketSize =0;
                 break;
             case 7:
                 tempArray =  Arrays.copyOfRange(message, 2,message.length);
@@ -141,19 +143,29 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
         if(len == 2) {
             opCode = bytesToShort(bytes);
         }
-        switch(opCode){
-            case 1:
-            case 2:
-            if (nextByte == '\0') {
-                return decode(bytes);
+        if(opCode != 0) {
+            switch (opCode) {
+                case 1:
+                case 2:
+                case 7:
+                case 8:
+                    if (nextByte == '\0') {
+                        return decode(bytes);
+                    }
+                    break;
+                case 3:
+                    if (len == 4)
+                        datePacketSize = bytesToShort(Arrays.copyOfRange(bytes, 2, 4)) + 6;
+                    if (datePacketSize == len)
+                        return decode(bytes);
+                    break;
+                case 6:
+                case 10:
+                    return decode(bytes);
+                    default:
+                        return decode(bytes);
             }
-                break;
-            case 3:
-                if(len =)
-            case
         }
-
-
         pushByte(nextByte);
         return null; //not a line yet
     }
