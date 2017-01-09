@@ -131,4 +131,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
 
         }
     }
+    public BidiMessagingProtocol<T> getProtocol(){
+        return protocol;
+    }
 }
