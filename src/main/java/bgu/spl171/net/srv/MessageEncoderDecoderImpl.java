@@ -2,6 +2,7 @@ package bgu.spl171.net.srv;
 
 import bgu.spl171.net.api.MessageEncoderDecoder;
 import bgu.spl171.net.srv.msg.Message;
+import bgu.spl171.net.srv.msg.server2client.Acknowledge;
 import bgu.spl171.net.srv.msg.server2client.Broadcast;
 
 /**
@@ -15,27 +16,30 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
 
     @Override
     public byte[] encode(Message message) {
-        byte[] encodedMessage;
+        byte[] encodedMessage = new byte[message.getPacketSize()];
         switch(message.getOpCode()){
             case 9: //broadcast
-                int fileNameByteSize = ((Broadcast)message).getFilename().getBytes().length;
-                encodedMessage = new byte[fileNameByteSize + 4];
-                for(int i =0; i<fileNameByteSize ;i++){
-                    encodedMessage[i + 2]
+                byte[] fileNameToBytes = ((Broadcast)message).getFilename().getBytes();
+                for(int i =0; i<message.getPacketSize() ;i++){
+                    encodedMessage[i + 3] = fileNameToBytes[i];
                 }
                 encodedMessage[0] = shortToBytes(message.getOpCode())[0];
                 encodedMessage[1] = shortToBytes(message.getOpCode())[1];
+                encodedMessage[2] = ((Broadcast)message).getIsAdded();
                 encodedMessage[encodedMessage.length - 1] = 0;
                 break;
             case 4:
+                encodedMessage[0] = shortToBytes(message.getOpCode())[0];
+                encodedMessage[1] = shortToBytes(message.getOpCode())[0];
+                encodedMessage[2] = shortToBytes(((Acknowledge)message).getBlockNum())[0];
+                encodedMessage[3] = shortToBytes(((Acknowledge)message).getBlockNum())[1];
                 break;
             case 7:
                 break;
             case 3:
                 break;
-
         }
-        return null;
+        return encodedMessage;
     }
 
     public short bytesToShort(byte[] byteArr)
