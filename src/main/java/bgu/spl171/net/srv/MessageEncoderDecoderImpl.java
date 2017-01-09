@@ -4,6 +4,8 @@ import bgu.spl171.net.api.MessageEncoderDecoder;
 import bgu.spl171.net.srv.msg.DataMessage;
 import bgu.spl171.net.srv.msg.Message;
 import bgu.spl171.net.srv.msg.client2server.DeleteFile;
+import bgu.spl171.net.srv.msg.client2server.Login;
+import bgu.spl171.net.srv.msg.client2server.ReadWrite;
 import bgu.spl171.net.srv.msg.server2client.Acknowledge;
 import bgu.spl171.net.srv.msg.server2client.Broadcast;
 import bgu.spl171.net.srv.msg.server2client.Error;
@@ -65,11 +67,30 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
     public Message decode(byte[] message){
         Message decodeMessage;
         byte[] tempArray;
-        switch(bytesToShort(message)){
+        short opCode =bytesToShort(message);
+        switch(opCode){
+            case 1:
+            case 2:
+                tempArray =  Arrays.copyOfRange(message, 2,message.length -1);
+                String fileName = new String(tempArray, StandardCharsets.UTF_8);
+                decodeMessage = new ReadWrite(opCode,fileName);
+                break;
+            case 3:
+                tempArray =  Arrays.copyOfRange(message, 6,message.length);
+                short dataSize=bytesToShort(Arrays.copyOfRange(tempArray,2,4));
+                short blockNum=bytesToShort(Arrays.copyOfRange(tempArray,4,6));
+                decodeMessage = new DataMessage(dataSize,blockNum,tempArray);
+                break;
+            case 7:
+                tempArray =  Arrays.copyOfRange(message, 2,message.length);
+                String username = new String(tempArray, StandardCharsets.UTF_8);
+                decodeMessage = new Login(username);
+                break;
+
             case 8:
                  tempArray =  Arrays.copyOfRange(message, 2,message.length -1);
-                String fileName = new String(tempArray, StandardCharsets.UTF_8);
-                decodeMessage = new DeleteFile(fileName);
+                String deleteFileName = new String(tempArray, StandardCharsets.UTF_8);
+                decodeMessage = new DeleteFile(deleteFileName);
                 break;
             case 6:
                 tempArray =  Arrays.copyOfRange(message, 2,message.length -1);
