@@ -1,4 +1,4 @@
-package bgu.spl171.net.srv;
+package bgu.spl171.net.srv.baseServerSrv;
 
 import bgu.spl171.net.api.MessageEncoderDecoder;
 import bgu.spl171.net.api.MessagingProtocol;
