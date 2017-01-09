@@ -64,19 +64,20 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
 
     public Message decode(byte[] message){
         Message decodeMessage;
-
+        byte[] tempArray;
         switch(bytesToShort(message)){
             case 8:
-                byte[] tempArray =  Arrays.copyOfRange(message, 2,message.length -1);
+                 tempArray =  Arrays.copyOfRange(message, 2,message.length -1);
                 String fileName = new String(tempArray, StandardCharsets.UTF_8);
                 decodeMessage = new DeleteFile(fileName);
                 break;
             case 6:
-                byte[] tempArray =  Arrays.copyOfRange(message, 2,message.length -1);
+                tempArray =  Arrays.copyOfRange(message, 2,message.length -1);
                 String fileName = new String(tempArray, StandardCharsets.UTF_8);
                 decodeMessage = new DeleteFile(fileName);
                 break;
             default:
+
                 decodeMessage = null;
                 break;
 
