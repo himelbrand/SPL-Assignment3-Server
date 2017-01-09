@@ -17,10 +17,11 @@ import java.util.Arrays;
  * Created by himelbrand on 1/9/17.
  */
 public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message> {
-    @Override
-    public Message decodeNextByte(byte nextByte) {
-        return null;
-    }
+
+    private byte[] bytes = new byte[1 << 10]; //start with 1k
+    private int len = 0;
+    private short opCode =0;
+    private short datePacketSize =0;
 
     @Override
     public byte[] encode(Message message) {
@@ -90,6 +91,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
                 break;
 
         }
+        len =0;
         return decodeMessage;
     }
 
@@ -108,6 +110,42 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
         bytesArr[1] = (byte)(num & 0xFF);
         return bytesArr;
     }
+
+
+
+    @Override
+    public Message decodeNextByte(byte nextByte) {
+        //notice that the top 128 ascii characters have the same representation as their utf-8 counterparts
+        //this allow us to do the following comparison
+
+        if(len == 2) {
+            opCode = bytesToShort(bytes);
+        }
+        switch(opCode){
+            case 1:
+            case 2:
+            if (nextByte == '\0') {
+                return decode(bytes);
+            }
+                break;
+            case 3:
+                if(len =)
+            case
+        }
+
+
+        pushByte(nextByte);
+        return null; //not a line yet
+    }
+
+    private void pushByte(byte nextByte) {
+        if (len >= bytes.length) {
+            bytes = Arrays.copyOf(bytes, len * 2);
+        }
+
+        bytes[len++] = nextByte;
+    }
+
 
 
 }
