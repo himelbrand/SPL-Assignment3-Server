@@ -10,6 +10,7 @@ public class Broadcast extends Message {
         super((short)9);
         this.isAdded=isAdded;
         this.filename=filename;
+        this.packetSize=4+filename.getBytes().length;
     }
 
     public byte getIsAdded() {

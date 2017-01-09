@@ -8,6 +8,7 @@ public class DeleteFile extends Message {
     public DeleteFile(String filename) {
         super((short) 8);
         this.filename = filename;
+        this.packetSize=3+filename.getBytes().length;
     }
 
     public String getFilename() {

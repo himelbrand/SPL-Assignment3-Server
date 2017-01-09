@@ -8,6 +8,7 @@ public class Login extends Message {
     public Login(String username) {
         super((short) 7);
         this.username=username;
+        this.packetSize=3+username.getBytes().length;
     }
     public String getUsername() {
         return username;

@@ -6,5 +6,6 @@ package bgu.spl171.net.srv.msg;
 public class Disconnect extends Message{
     public Disconnect() {
         super((short) 10);
+        this.packetSize=2;
     }
 }

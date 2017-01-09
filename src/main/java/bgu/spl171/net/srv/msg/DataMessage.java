@@ -4,17 +4,19 @@ package bgu.spl171.net.srv.msg;
  * Created by himelbrand on 1/9/17.
  */
 public class DataMessage extends Message {
-    private short packetSize;
+    private short dataSize;
     private short blockNum;
     private byte[] data;
-    public DataMessage(short packetSize,short blockNum,byte[] data) {
+    public DataMessage(short dataSize,short blockNum,byte[] data) {
         super((short) 3);
-        this.packetSize = packetSize;
+        this.dataSize = dataSize;
         this.blockNum = blockNum;
         this.data = data.clone();
+        this.packetSize=6+data.length;
+
     }
-    public short getPacketSize() {
-        return packetSize;
+    public short getDataSize() {
+        return dataSize;
     }
     public short getBlockNum() {
         return blockNum;

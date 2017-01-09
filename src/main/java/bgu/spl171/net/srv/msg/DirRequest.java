@@ -6,5 +6,6 @@ package bgu.spl171.net.srv.msg;
 public class DirRequest extends Message {
     public DirRequest() {
         super((short) 6);
+        this.packetSize=2;
     }
 }

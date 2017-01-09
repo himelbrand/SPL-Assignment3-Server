@@ -36,6 +36,7 @@ public class Error extends Message{
                 this.errorMsg = "User already logged in – Login username already connected.";
                 break;
         }
+        this.packetSize=5+errorMsg.getBytes().length;
     }
 
     public short getErrorCode() {

@@ -5,12 +5,15 @@ package bgu.spl171.net.srv.msg;
  */
 public class Acknowledge extends Message{
     private short blockNum;
+
     public Acknowledge(short blockNum) {
         super((short) 4);
         this.blockNum = blockNum;
+        this.packetSize=4;
     }
 
     public short getBlockNum() {
         return blockNum;
     }
+
 }
