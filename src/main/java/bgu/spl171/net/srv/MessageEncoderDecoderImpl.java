@@ -6,6 +6,8 @@ import bgu.spl171.net.srv.msg.Message;
 import bgu.spl171.net.srv.msg.client2server.DeleteFile;
 import bgu.spl171.net.srv.msg.client2server.Login;
 import bgu.spl171.net.srv.msg.client2server.ReadWrite;
+import bgu.spl171.net.srv.msg.client2server.DirRequest;
+import bgu.spl171.net.srv.msg.client2server.Disconnect;
 import bgu.spl171.net.srv.msg.server2client.Acknowledge;
 import bgu.spl171.net.srv.msg.server2client.Broadcast;
 import bgu.spl171.net.srv.msg.server2client.Error;
@@ -25,6 +27,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
 
     @Override
     public byte[] encode(Message message) {
+
         byte[] encodedMessage = new byte[message.getPacketSize()];
         byte[] tempBytes;
         encodedMessage[0] = shortToBytes(message.getOpCode())[0];
@@ -37,6 +40,9 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
                     encodedMessage[i + 3] = tempBytes[i];
                 }
                 encodedMessage[encodedMessage.length - 1] = 0;
+
+                if(((Broadcast)message).getFilename().contains("/0"))
+                    encodedMessage=null;
                 break;
             case 4:
                 encodedMessage[2] = shortToBytes(((Acknowledge)message).getBlockNum())[0];
@@ -50,6 +56,9 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
                     encodedMessage[i + 4] = tempBytes[i];
                 }
                 encodedMessage[encodedMessage.length - 1] = 0;
+
+                if(((Error)message).getErrorMsg().contains("/0"))
+                    encodedMessage=null;
                 break;
             case 3:
                 encodedMessage[2] = shortToBytes(((DataMessage)message).getDataSize())[0];
@@ -93,12 +102,12 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
                 decodeMessage = new DeleteFile(deleteFileName);
                 break;
             case 6:
-                tempArray =  Arrays.copyOfRange(message, 2,message.length -1);
-                String fileName = new String(tempArray, StandardCharsets.UTF_8);
-                decodeMessage = new DeleteFile(fileName);
+                decodeMessage = new DirRequest();
+                break;
+            case 10:
+                decodeMessage = new Disconnect();
                 break;
             default:
-
                 decodeMessage = null;
                 break;
 
