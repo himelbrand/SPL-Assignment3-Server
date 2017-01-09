@@ -3,7 +3,6 @@ package bgu.spl171.net.srv.baseServerSrv;
 import bgu.spl171.net.api.MessageEncoderDecoder;
 import bgu.spl171.net.api.MessagingProtocol;
 import bgu.spl171.net.srv.bidi.ConnectionHandler;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -58,6 +57,11 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
 
     @Override
     public void send(T msg) {
-
+        try {
+            out.write(encdec.encode(msg));
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("error blocking connectionHandler");
+        }
     }
 }

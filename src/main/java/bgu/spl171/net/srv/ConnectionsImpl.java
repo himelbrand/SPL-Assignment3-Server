@@ -10,12 +10,12 @@ import java.util.HashMap;
  */
 public class ConnectionsImpl<T> implements Connections<T> {
 
-    private HashMap<Integer,ConnectionHandler<T>> connectionHandelerList = new HashMap<>();
+    private HashMap<Integer,ConnectionHandler<T>> connectionHandlerList = new HashMap<>();
 
     @Override
     public boolean send(int connectionId, T msg) {
-        if(connectionHandelerList.get(connectionId) != null) {
-            connectionHandelerList.get(connectionId).send(msg);
+        if(connectionHandlerList.get(connectionId) != null) {
+            connectionHandlerList.get(connectionId).send(msg);
             return true;
         }
         //connectionId not exist
@@ -24,7 +24,7 @@ public class ConnectionsImpl<T> implements Connections<T> {
 
     @Override
     public void broadcast(T msg) {
-        for(ConnectionHandler<T> myConnectionHandler: connectionHandelerList.values()){
+        for(ConnectionHandler<T> myConnectionHandler: connectionHandlerList.values()){
             myConnectionHandler.send(msg);
         }
     }
@@ -32,8 +32,8 @@ public class ConnectionsImpl<T> implements Connections<T> {
     @Override
     public void disconnect(int connectionId) {
         try {
-            connectionHandelerList.get(connectionId).close();
-            connectionHandelerList.remove(connectionId);
+            connectionHandlerList.get(connectionId).close();
+            connectionHandlerList.remove(connectionId);
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Socket close throw exception -- needs to figure out");
