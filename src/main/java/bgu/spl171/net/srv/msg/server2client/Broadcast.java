@@ -1,4 +1,6 @@
-package bgu.spl171.net.srv.msg;
+package bgu.spl171.net.srv.msg.server2client;
+
+import bgu.spl171.net.srv.msg.Message;
 
 /**
  * Created by himelbrand on 1/9/17.

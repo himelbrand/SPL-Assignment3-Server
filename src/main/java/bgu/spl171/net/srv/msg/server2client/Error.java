@@ -1,9 +1,11 @@
-package bgu.spl171.net.srv.msg;
+package bgu.spl171.net.srv.msg.server2client;
+
+import bgu.spl171.net.srv.msg.Message;
 
 /**
  * Created by himelbrand on 1/9/17.
  */
-public class Error extends Message{
+public class Error extends Message {
     private short errorCode;
     private String errorMsg;
     public Error(short errorCode) {

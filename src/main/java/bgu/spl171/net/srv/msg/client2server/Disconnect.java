@@ -1,9 +1,11 @@
-package bgu.spl171.net.srv.msg;
+package bgu.spl171.net.srv.msg.client2server;
+
+import bgu.spl171.net.srv.msg.Message;
 
 /**
  * Created by himelbrand on 1/9/17.
  */
-public class Disconnect extends Message{
+public class Disconnect extends Message {
     public Disconnect() {
         super((short) 10);
         this.packetSize=2;
