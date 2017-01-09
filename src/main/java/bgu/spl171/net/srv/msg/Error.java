@@ -7,6 +7,7 @@ public class Error extends Message{
     private short errorCode;
     private String errorMsg;
     public Error(short errorCode) {
+        //TODO: change error messages
         super((short) 7);
         this.errorCode = errorCode;
         switch (errorCode){
