@@ -83,9 +83,7 @@ public class Reactor<T> implements Server<T> {
         if (Thread.currentThread() == selectorThread) {
             key.interestOps(ops);
         } else {
-            selectorTasks.add(() -> {
-                key.interestOps(ops);
-            });
+            selectorTasks.add(() -> key.interestOps(ops));
             selector.wakeup();
         }
     }
@@ -110,7 +108,8 @@ public class Reactor<T> implements Server<T> {
             if (task != null) {
                 pool.submit(handler, task);
             }
-        } else {
+        }
+        if (key.isWritable()) {
             handler.continueWrite();
         }
 

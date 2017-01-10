@@ -91,6 +91,9 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
 
                 datePacketSize =0;
                 break;
+            case 4:
+                decodeMessage = new Acknowledge(bytesToShort(Arrays.copyOfRange(message,2,4)));
+                break;
             case 7:
                 tempArray =  Arrays.copyOfRange(message, 2,message.length);
                 String username = new String(tempArray, StandardCharsets.UTF_8);
@@ -159,11 +162,15 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
                     if (datePacketSize == len)
                         return decode(bytes);
                     break;
+                case 4:
+                    if (len == 4)
+                        return decode(bytes);
+                    break;
                 case 6:
                 case 10:
                     return decode(bytes);
-                    default:
-                        return decode(bytes);
+                default:
+                    return decode(bytes);
             }
         }
         pushByte(nextByte);
