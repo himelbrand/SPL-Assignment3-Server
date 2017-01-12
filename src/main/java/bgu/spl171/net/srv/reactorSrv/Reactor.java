@@ -99,6 +99,9 @@ public class Reactor<T> implements Server<T> {
                 this);
         myConnections.register(handler,handler.getProtocol());
         clientChan.register(selector, SelectionKey.OP_READ, handler);
+
+
+        /// TODO : check if selector steal contain disconnected loggedOff records
     }
 
     private void handleReadWrite(SelectionKey key) {
