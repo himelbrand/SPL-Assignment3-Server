@@ -37,22 +37,24 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                 String filesList ="";
                 ArrayList<String> names = new ArrayList<String>(Arrays.asList(f.list()));
                 for(String fileName:names){
-                    filesList +=fileName + "\0"; //need to check if actually prints byte of 0
+                    filesList +=fileName + "\0";
                 }
                 byte[] bytes = filesList.getBytes();
 
-                int size = byt
-                for(int i =0 ; i<bytes.length/512 ;i++)
-                {
-                    DataMessage newData = new DataMessage()
+                int numberOfMessages;
+                if(bytes.length < 512){
+                    numberOfMessages = 1;
+                }else{
+                    numberOfMessages = bytes.length/512 + 1;
                 }
 
-                if (bytes.length%512 ==0) // we must send another data packet to ensure this is the last byte
+                for(int i =0 ; i<numberOfMessages ;i++)
                 {
-
+                    DataMessage newData = new DataMessage((short)(6),(short)i,Arrays.copyOfRange(bytes,i *512,(bytes.length < (i+1)*512 ? bytes.length : (i+1)*512 )));
+                    connections.send(connectionId,newData);
                 }
+
                 break;
-
         }
     }
 
