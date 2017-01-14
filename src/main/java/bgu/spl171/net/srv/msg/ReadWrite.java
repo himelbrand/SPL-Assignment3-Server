@@ -1,4 +1,4 @@
-package bgu.spl171.net.srv.msg.client2server;
+package bgu.spl171.net.srv.msg;
 
 import bgu.spl171.net.srv.msg.Message;
 
