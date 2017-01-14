@@ -5,6 +5,7 @@ import bgu.spl171.net.api.MessagingProtocol;
 import bgu.spl171.net.api.bidi.BidiMessagingProtocol;
 import bgu.spl171.net.srv.bidi.ConnectionHandler;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedByInterruptException;
@@ -56,6 +57,8 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
                             protocol.process(nextMessage);
                         }
                     }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
                 } finally {
                     releaseBuffer(buf);
                 }

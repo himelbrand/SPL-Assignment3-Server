@@ -4,11 +4,7 @@ import bgu.spl171.net.api.bidi.BidiMessagingProtocol;
 import bgu.spl171.net.api.bidi.Connections;
 import bgu.spl171.net.srv.bidi.ConnectionHandler;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.StringJoiner;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -16,11 +12,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ConnectionsImpl<T> implements Connections<T> {
 
-    private HashMap<Integer,ConnectionHandler<T>> connectionHandlerList = new HashMap<>();
+    private ConcurrentHashMap<Integer,ConnectionHandler<T>> connectionHandlerList = new ConcurrentHashMap<>();
     private AtomicInteger newConnectionId = new AtomicInteger(0);
-
-    private final CopyOnWriteArrayList<String> loggedIn = new CopyOnWriteArrayList<>();
-
 
     @Override
     public boolean send(int connectionId, T msg) {
@@ -57,15 +50,5 @@ public class ConnectionsImpl<T> implements Connections<T> {
 
     }
 
-    public boolean logIn(String userName){
-        synchronized (loggedIn) {
-            if (loggedIn.contains(userName)) {
-                return false;
-            } else {
-                loggedIn.add(userName);
-                return true;
-            }
-        }
-        }
-    }
+}
 

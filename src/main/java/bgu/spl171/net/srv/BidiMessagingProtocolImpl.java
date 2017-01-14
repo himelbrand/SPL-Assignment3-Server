@@ -6,132 +6,232 @@ import bgu.spl171.net.srv.msg.DataMessage;
 import bgu.spl171.net.srv.msg.Message;
 import bgu.spl171.net.srv.msg.client2server.DeleteFile;
 import bgu.spl171.net.srv.msg.client2server.Login;
+import bgu.spl171.net.srv.msg.client2server.ReadWrite;
 import bgu.spl171.net.srv.msg.server2client.Acknowledge;
 import bgu.spl171.net.srv.msg.server2client.Broadcast;
 import bgu.spl171.net.srv.msg.server2client.Error;
-
-import javax.xml.crypto.Data;
 import java.io.*;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Created by Shahar on 11/01/2017.
- */
+
 public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message> {
 
     private int connectionId;
-    private  ConnectionsImpl<Message> connections;
+    private  Connections<Message> connections;
     private boolean shouldClose = false;
-
+    static final ConcurrentHashMap<Integer,String> loggedInUsers= new ConcurrentHashMap<>();
     private boolean loggedIn =false;
     private short lastOp;
+    private File file;
+    private byte[] bytes;
+    private byte[] blob = new byte[512];
+    private int blobLen;
+    private FileInputStream is=null;
+    private FileOutputStream os=null;
+    private long dataBlocksNeeded=0;
 
     @Override
     public void start(int connectionId, Connections<Message> connections) {
         this.connectionId = connectionId;
-        this.connections = (ConnectionsImpl<Message>)connections;
+        this.connections = connections;
     }
 
     @Override
     public void process(Message message) throws FileNotFoundException {
 
-        File f;
+
         String filesList;
         ArrayList<String> names;
-        byte[] bytes;
+        short blockNum;
         DataMessage newData;
+        short currentOpcode = message.getOpCode();
 
 
-        if (loggedIn || message.getOpCode() == 7) {
+        if (loggedIn || currentOpcode == 7) {
 
-            switch (message.getOpCode()) {
+            switch (currentOpcode) {
+                case 1://RRQ
+                    lastOp=1;
+                    file = new File("Files/" + ((ReadWrite)message).getFilename());
+                    if(file.exists()){
+                        dataBlocksNeeded = file.length()/512 +1;
+                        is = new FileInputStream(file);
+                        try {
+                            if((blobLen = is.read(blob))!=-1)
+                                connections.send(connectionId,new DataMessage((short)blobLen,(short)1,blob));
+                        } catch (IOException e) {//TODO:check when this happens
+                            e.printStackTrace();
+                        }
+                    }else{
+                        connections.send(connectionId, new Error((short) 1));//file not found
+                    }
+                    break;
+                case 2://WRQ
+                    lastOp=2;
+                    file = new File("Files/" + ((ReadWrite)message).getFilename());
+                    if(file.exists()){//ERROR
+                        connections.send(connectionId, new Error((short) 5));//file already exists
+                    }else{
+                        file = new File("Temp/" + ((ReadWrite)message).getFilename());
+                        try {
+                            if(!file.exists()){
+                                file.createNewFile();
+                                os = new FileOutputStream(file);
+                                connections.send(connectionId, new Acknowledge((short) 0));
+                            }else
+                                connections.send(connectionId, new Error((short) 5));//file already exists
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    break;
+                case 3://DATA from client
+                    short dataSize = ((DataMessage)message).getDataSize();
+                    byte[] data = ((DataMessage)message).getData();
+                    blockNum = ((DataMessage)message).getBlockNum();
+                    try {
+                        os.write(data);
+                        os.flush();
+                        connections.send(connectionId,new Acknowledge(blockNum));
+                    } catch (IOException e) {//TODO: send error msg , probably
+                        e.printStackTrace();
+                    }finally {
+                        try {
+                            if(dataSize<512){
+                                Files.move(file.toPath(),new File("Files/"+file.getName()).toPath());
+                                broadcast(new Broadcast((byte) 1,file.getName()));
+                                os.close();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                    break;
+                case 4: // ACK
+                    blockNum = ((Acknowledge) message).getBlockNum();
+                    switch (lastOp) {
+                        case 1://RRQ
+                            is = new FileInputStream(file);
+                            try {
+                                if ((blobLen = is.read(blob)) != -1)
+                                    connections.send(connectionId, new DataMessage((short) blobLen,(short)(blockNum+1), blob));
+                            } catch (IOException e) {//TODO:check when this happens
+                                e.printStackTrace();
+                            }
+                            break;
+                        case 6: //DIRQ
+                            file = new File("/Files/");
+                            filesList = "";
+                            names = file.list() == null ? new ArrayList<>(): new ArrayList<>(Arrays.asList(file.list()));
+                            for (String fileName : names) {
+                                filesList += fileName + "\0";
+                            }
+                            bytes = filesList.getBytes();
+                            if (blockNum < dataBlocksNeeded)
+                                if (bytes.length == blockNum * 512) {
+                                    newData = new DataMessage((short) 0, (short) (blockNum + 1), new byte[0]);
+                                    connections.send(connectionId, newData);
+                                } else if (bytes.length > (int) blockNum * 512) {
+                                    int packetSize = (bytes.length < 512 * (blockNum + 1) ? bytes.length - (512 * blockNum) : 512);
+                                    newData = new DataMessage((short) packetSize, (short) (blockNum + 1), Arrays.copyOfRange(bytes, 512 * blockNum, (bytes.length < 512 * (blockNum + 1) ? bytes.length : 512 * (blockNum + 1))));
+                                    connections.send(connectionId, newData);
+                                }
+                            break;
+
+                    }
+                    break;
+                case 5://Error - upload/download failed in client side
+                    if(lastOp==2){
+                        try {
+                            os.close();
+                            if(file.exists())
+                                file.delete();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    file=null;
+                    os=null;
+                    is=null;
+                    break;
+                case 6: //DIRQ Packets
+                    lastOp = 6;
+                    file = new File("/Files/");
+                    filesList = "";
+                    names = new ArrayList<>(Arrays.asList(file.list()));
+                    for (String fileName : names) {
+                        filesList += fileName + "\0";
+                    }
+                    bytes = filesList.getBytes();
+                    dataBlocksNeeded = bytes.length / 512 + 1;
+                    newData = new DataMessage((short) (6), (short) 0, Arrays.copyOfRange(bytes, 0, (bytes.length < 512 ? bytes.length : 512)));
+                    connections.send(connectionId, newData);
+
+                    break;
                 case 7: //Login
-                    if (connections.logIn(((Login) message).getUsername())) {
-                        loggedIn = true;
+                    if (logIn(((Login) message).getUsername())) {
                         connections.send(connectionId, new Acknowledge((short) 0));//
                     } else {
                         connections.send(connectionId, new Error((short) 7)); //User already logged in
                     }
                     break;
-
-                case 10:
-                    connections.send(connectionId, new Acknowledge((short) 0)); //user disconnected
-                    connections.disconnect(connectionId);
-                    loggedIn = false;
-                    break;
-
-
                 case 8:
-                    File file = new File("Files/" + ((DeleteFile)message).getFilename());
+                    file = new File("Files/" + ((DeleteFile)message).getFilename());
                     if(file.exists()){
                         file.delete();
                         connections.send(connectionId, new Acknowledge((short) 0)); //file deleted
-                        connections.broadcast(new Broadcast((byte)(0),((DeleteFile)message).getFilename()));
+                        broadcast(new Broadcast((byte)(0),((DeleteFile)message).getFilename()));
                     }else{
                         connections.send(connectionId, new Error((short) 1)); //User already logged in
                     }
                     break;
-                case 6: //DIRQ Packets
-                    lastOp = 6;
-                    f = new File("/Files/");
-                    filesList = "";
-                    names = new ArrayList<>(Arrays.asList(f.list()));
-                    for (String fileName : names) {
-                        filesList += fileName + "\0";
-                    }
-                    bytes = filesList.getBytes();
-                    newData = new DataMessage((short) (6), (short) 0, Arrays.copyOfRange(bytes, 0, (bytes.length < 512 ? bytes.length : 512)));
-                    connections.send(connectionId, newData);
-
+                case 10:
+                    connections.send(connectionId, new Acknowledge((short) 0)); //user disconnected
+                    logout();
+                    connections.disconnect(connectionId);
                     break;
-
-
-
-
-
-                case 4: // ACK
-                    switch (lastOp) {
-                        case 6: //DIRQ
-                            short blockNum = ((Acknowledge) message).getBlockNum();
-                            f = new File("/Files/");
-                            filesList = "";
-                            names = new ArrayList<>(Arrays.asList(f.list()));
-                            for (String fileName : names) {
-                                filesList += fileName + "\0";
-                            }
-                            bytes = filesList.getBytes();
-                            if (bytes.length == blockNum * 512) {
-                                newData = new DataMessage((short) 0, (short) (blockNum + 1), new byte[0]);
-                                connections.send(connectionId, newData);
-                            } else if (bytes.length > (int) blockNum * 512) {
-                                int packetSize = (bytes.length < 512 * (blockNum + 1) ? bytes.length - (512 * blockNum) : 512);
-                                newData = new DataMessage((short) packetSize, (short) (blockNum + 1), Arrays.copyOfRange(bytes, 512 * blockNum, (bytes.length < 512 * (blockNum + 1) ? bytes.length : 512 * (blockNum + 1))));
-                                connections.send(connectionId, newData);
-                            }
-                            break;
-
-                    }
-                    break;
-
                 default:
                     connections.send(connectionId, new Error((short) 4)); //unknown opcode
                     break;
-
             }
         }
         else{
-            connections.send(connectionId, new Error((short) 4)); //unknown opcode (User not logged in (this case))
+            if(currentOpcode<1 || currentOpcode>10)
+                connections.send(connectionId, new Error((short) 4)); //unknown opcode
+            else
+                connections.send(connectionId, new Error((short) 6)); //User not logged in
         }
     }
-    private void continueData(int blockNumber) {
-
+    private boolean logIn(String userName){
+        synchronized (loggedInUsers) {
+            if (loggedInUsers.containsValue(userName)) {
+                return false;
+            } else {
+                loggedInUsers.put(connectionId,userName);
+                loggedIn = true;
+                return true;
+            }
+        }
     }
-
+    private void logout(){
+        synchronized (loggedInUsers) {
+            loggedInUsers.remove(connectionId);
+            loggedIn = false;
+            shouldClose = true;
+        }
+    }
+    private void broadcast(Broadcast msg){
+        for(Integer id : loggedInUsers.keySet()){
+            connections.send(id,msg);
+        }
+    }
 
     @Override
     public boolean shouldTerminate() {
-        //return false;
         return shouldClose;
     }
 }
