@@ -61,7 +61,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                         is = new FileInputStream(file);
                         try {
                             if((blobLen = is.read(blob))!=-1)
-                                connections.send(connectionId,new DataMessage((short)blobLen,(short)1,blob));
+                                connections.send(connectionId,new DataMessage((short)blobLen,(short)1,Arrays.copyOfRange(blob,0,blobLen)));
                         } catch (IOException e) {//TODO:check when this happens
                             e.printStackTrace();
                         }
@@ -115,10 +115,15 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     blockNum = ((Acknowledge) message).getBlockNum();
                     switch (lastOp) {
                         case 1://RRQ
-                            is = new FileInputStream(file);
                             try {
-                                if ((blobLen = is.read(blob)) != -1)
-                                    connections.send(connectionId, new DataMessage((short) blobLen,(short)(blockNum+1), blob));
+                                if ((blobLen = is.read(blob)) != -1) {
+                                    byte[] tempBlob = Arrays.copyOfRange(blob, 0, blobLen);
+                                    connections.send(connectionId, new DataMessage((short) tempBlob.length, (short) (blockNum + 1), tempBlob));
+                                }else {
+                                    if(file.length()%512==0)
+                                        connections.send(connectionId, new DataMessage((short) 0, (short) (blockNum + 1), new byte[0]));
+                                    is = null;
+                                }
                             } catch (IOException e) {//TODO:check when this happens
                                 e.printStackTrace();
                             }
