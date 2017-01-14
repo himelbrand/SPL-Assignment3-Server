@@ -97,7 +97,7 @@ public class Reactor<T> implements Server<T> {
                 protocolFactory.get(),
                 clientChan,
                 this);
-        myConnections.register(handler,handler.getProtocol());
+        myConnections.register(handler,handler.getProtocol());//TODO:send to ActorPOOL not run this here
         clientChan.register(selector, SelectionKey.OP_READ, handler);
 
 

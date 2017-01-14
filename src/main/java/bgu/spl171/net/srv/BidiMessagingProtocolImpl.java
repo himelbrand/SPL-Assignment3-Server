@@ -33,6 +33,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     private FileOutputStream os=null;
     private long dataBlocksNeeded=0;
 
+
     @Override
     public void start(int connectionId, Connections<Message> connections) {
         this.connectionId = connectionId;
@@ -41,7 +42,6 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
     @Override
     public void process(Message message) throws FileNotFoundException {
-
 
         String filesList;
         ArrayList<String> names;
@@ -239,4 +239,5 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     public boolean shouldTerminate() {
         return shouldClose;
     }
+
 }

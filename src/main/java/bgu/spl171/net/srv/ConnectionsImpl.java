@@ -46,8 +46,7 @@ public class ConnectionsImpl<T> implements Connections<T> {
 
     public void register(ConnectionHandler<T> handler, BidiMessagingProtocol<T> tempProtocol){
         connectionHandlerList.put(newConnectionId.get(), handler);
-        tempProtocol.start(newConnectionId.getAndIncrement(),this);
-
+        tempProtocol.start(newConnectionId.getAndIncrement(),this);//TODO:maybe need to move this part
     }
 
 }
