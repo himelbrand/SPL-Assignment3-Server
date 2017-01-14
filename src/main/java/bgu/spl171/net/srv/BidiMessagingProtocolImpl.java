@@ -194,7 +194,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     newData = new DataMessage((short) bytes.length, (short)0,bytes);
                     connections.send(connectionId, newData);
                     break;
-
+g
                 case 2: //Write
                     lastOp=2;
                      lastFile  = new File("temp/" + ((ReadWrite)message).getFilename());
