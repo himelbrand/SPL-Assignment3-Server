@@ -1,6 +1,4 @@
-package bgu.spl171.net.srv.msg;
-
-import bgu.spl171.net.srv.msg.Message;
+package bgu.spl171.net.impl.TFTP.msg;
 
 /**
  * Created by himelbrand on 1/9/17.

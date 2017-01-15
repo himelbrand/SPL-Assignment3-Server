@@ -1,8 +1,7 @@
 package bgu.spl171.net.impl.TFTPreactor;
 
-import bgu.spl171.net.api.bidi.BidiMessagingProtocol;
-import bgu.spl171.net.srv.BidiMessagingProtocolImpl;
-import bgu.spl171.net.srv.MessageEncoderDecoderImpl;
+import bgu.spl171.net.impl.TFTP.BidiMessagingProtocolImpl;
+import bgu.spl171.net.impl.TFTP.MessageEncoderDecoderImpl;
 import bgu.spl171.net.srv.Server;
 
 /**
