@@ -2,11 +2,15 @@ package bgu.spl171.net.srv.baseServerSrv;
 
 import bgu.spl171.net.api.MessageEncoderDecoder;
 import bgu.spl171.net.api.bidi.BidiMessagingProtocol;
+import bgu.spl171.net.srv.ConnectionsImpl;
 import bgu.spl171.net.srv.bidi.ConnectionHandler;
+import bgu.spl171.net.srv.msg.Message;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler<T> {
 
@@ -17,14 +21,21 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
     private BufferedOutputStream out;
     private volatile boolean connected = true;
 
+    private int connectionId;
+    private ConnectionsImpl<T> myConnections;
+
     public BlockingConnectionHandler(Socket sock, MessageEncoderDecoder<T> reader, BidiMessagingProtocol<T> protocol) {
         this.sock = sock;
         this.encdec = reader;
         this.protocol = protocol;
+
+
     }
 
     @Override
     public void run() {
+
+        protocol.start(this.connectionId,myConnections);//TODO:maybe need to move this part
         try (Socket sock = this.sock) { //just for automatic closing
             int read;
 
@@ -44,6 +55,15 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+
+    }
+
+    public void setConnectionId(int connectionId){
+        this.connectionId=connectionId;
+    }
+
+    public void setConnections(ConnectionsImpl<T> connections){
+        this.myConnections = connections;
 
     }
 
