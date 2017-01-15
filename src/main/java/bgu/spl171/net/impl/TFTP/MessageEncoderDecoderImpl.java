@@ -161,6 +161,8 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
                         datePacketSize = bytesToShort(Arrays.copyOfRange(bytes, 2, 4)) + 6;
                     if (datePacketSize == len)
                         return decode(bytes);
+                    if(len>datePacketSize)
+                        new Error((short) 0);
                     break;
                 case 4:
                     if (len == 4)
