@@ -50,7 +50,6 @@ public abstract class BaseServer<T> implements Server<T> {
                 handler.setConnectionId(myConnections.getConnectionsID());
                 handler.setConnections(myConnections);
 
-
                 myConnections.register(handler);
                 execute(handler);
             }
