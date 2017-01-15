@@ -1,14 +1,8 @@
 package bgu.spl171.net.impl.TFTPtpc;
 
-import bgu.spl171.net.api.MessageEncoderDecoder;
-import bgu.spl171.net.api.bidi.BidiMessagingProtocol;
-import bgu.spl171.net.impl.newsfeed.NewsFeed;
-import bgu.spl171.net.impl.rci.ObjectEncoderDecoder;
-import bgu.spl171.net.impl.rci.RemoteCommandInvocationProtocol;
-import bgu.spl171.net.srv.BidiMessagingProtocolImpl;
-import bgu.spl171.net.srv.MessageEncoderDecoderImpl;
+import bgu.spl171.net.impl.TFTP.BidiMessagingProtocolImpl;
+import bgu.spl171.net.impl.TFTP.MessageEncoderDecoderImpl;
 import bgu.spl171.net.srv.Server;
-import bgu.spl171.net.srv.msg.Message;
 
 
 /**
