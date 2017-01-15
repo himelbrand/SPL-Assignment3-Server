@@ -4,13 +4,11 @@ import bgu.spl171.net.api.MessageEncoderDecoder;
 import bgu.spl171.net.api.bidi.BidiMessagingProtocol;
 import bgu.spl171.net.srv.ConnectionsImpl;
 import bgu.spl171.net.srv.bidi.ConnectionHandler;
-import bgu.spl171.net.srv.msg.Message;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler<T> {
 

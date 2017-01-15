@@ -1,16 +1,16 @@
-package bgu.spl171.net.srv;
+package bgu.spl171.net.impl.TFTP;
 
 import bgu.spl171.net.api.MessageEncoderDecoder;
-import bgu.spl171.net.srv.msg.DataMessage;
-import bgu.spl171.net.srv.msg.Message;
-import bgu.spl171.net.srv.msg.DeleteFile;
-import bgu.spl171.net.srv.msg.Login;
-import bgu.spl171.net.srv.msg.ReadWrite;
-import bgu.spl171.net.srv.msg.DirRequest;
-import bgu.spl171.net.srv.msg.Disconnect;
-import bgu.spl171.net.srv.msg.Acknowledge;
-import bgu.spl171.net.srv.msg.Broadcast;
-import bgu.spl171.net.srv.msg.Error;
+import bgu.spl171.net.impl.TFTP.msg.DataMessage;
+import bgu.spl171.net.impl.TFTP.msg.Message;
+import bgu.spl171.net.impl.TFTP.msg.DeleteFile;
+import bgu.spl171.net.impl.TFTP.msg.Login;
+import bgu.spl171.net.impl.TFTP.msg.ReadWrite;
+import bgu.spl171.net.impl.TFTP.msg.DirRequest;
+import bgu.spl171.net.impl.TFTP.msg.Disconnect;
+import bgu.spl171.net.impl.TFTP.msg.Acknowledge;
+import bgu.spl171.net.impl.TFTP.msg.Broadcast;
+import bgu.spl171.net.impl.TFTP.msg.Error;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
