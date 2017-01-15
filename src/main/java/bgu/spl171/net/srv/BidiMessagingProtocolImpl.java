@@ -129,22 +129,43 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                             }
                             break;
                         case 6: //DIRQ
-                            file = new File("/Files/");
-                            filesList = "";
-                            names = file.list() == null ? new ArrayList<>(): new ArrayList<>(Arrays.asList(file.list()));
-                            for (String fileName : names) {
-                                filesList += fileName + "\0";
-                            }
-                            bytes = filesList.getBytes();
-                            if (blockNum < dataBlocksNeeded)
-                                if (bytes.length == blockNum * 512) {
-                                    newData = new DataMessage((short) 0, (short) (blockNum + 1), new byte[0]);
-                                    connections.send(connectionId, newData);
-                                } else if (bytes.length > (int) blockNum * 512) {
-                                    int packetSize = (bytes.length < 512 * (blockNum + 1) ? bytes.length - (512 * blockNum) : 512);
-                                    newData = new DataMessage((short) packetSize, (short) (blockNum + 1), Arrays.copyOfRange(bytes, 512 * blockNum, (bytes.length < 512 * (blockNum + 1) ? bytes.length : 512 * (blockNum + 1))));
-                                    connections.send(connectionId, newData);
+//                            file = new File("/Files/");
+//                            filesList = "";
+//                            names = file.list() == null ? new ArrayList<>(): new ArrayList<>(Arrays.asList(file.list()));
+//                            for (String fileName : names) {
+//                                filesList += fileName + "\0";
+//                            }
+//                            bytes = filesList.getBytes();
+//                            if (blockNum < dataBlocksNeeded)
+//                                if (bytes.length == blockNum * 512) {
+//                                    newData = new DataMessage((short) 0, (short) (blockNum + 1), new byte[0]);
+//                                    connections.send(connectionId, newData);
+//                                } else if (bytes.length > (int) blockNum * 512) {
+//                                    int packetSize = (bytes.length < 512 * (blockNum + 1) ? bytes.length - (512 * blockNum) : 512);
+//                                    newData = new DataMessage((short) packetSize, (short) (blockNum + 1), Arrays.copyOfRange(bytes, 512 * blockNum, (bytes.length < 512 * (blockNum + 1) ? bytes.length : 512 * (blockNum + 1))));
+//                                    connections.send(connectionId, newData);
+//                                }
+                            if (blockNum < dataBlocksNeeded){
+
+                                try {
+                                    if ((blobLen = is.read(blob)) != -1) {
+                                        byte[] tempBlob = Arrays.copyOfRange(blob, 0, blobLen);
+                                        connections.send(connectionId, new DataMessage((short) tempBlob.length, (short) (blockNum + 1), tempBlob));
+                                    }else {
+                                        if(file.length()%512==0)
+                                            connections.send(connectionId, new DataMessage((short) 0, (short) (blockNum + 1), new byte[0]));
+                                        is = null;
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
                                 }
+
+                            }else{
+                                file.delete();
+                                is=null;
+                                os=null;
+                                file = null;
+                            }
                             break;
 
                     }
@@ -164,17 +185,41 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     is=null;
                     break;
                 case 6: //DIRQ Packets
+
+                    file = new File("Temp/"+connectionId+"DIR");
+                    os = new FileOutputStream(file);
                     lastOp = 6;
-                    file = new File("/Files/");
-                    filesList = "";
-                    names = new ArrayList<>(Arrays.asList(file.list()));
-                    for (String fileName : names) {
-                        filesList += fileName + "\0";
+
+                    for(String name:new File("Files/").list()){
+                        try {
+                            os.write(name.getBytes());
+                            os.write((byte)'\0');
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
-                    bytes = filesList.getBytes();
-                    dataBlocksNeeded = bytes.length / 512 + 1;
-                    newData = new DataMessage((short) (6), (short) 0, Arrays.copyOfRange(bytes, 0, (bytes.length < 512 ? bytes.length : 512)));
+                    is = new FileInputStream(file);
+                    bytes = new byte[file.length() >512 ? 512 : (int)file.length()];
+
+                    try {
+                        is.read(bytes);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    dataBlocksNeeded = file.length() / 512 + 1;
+
+                    newData = new DataMessage((short) (6), (short) 0, bytes);
                     connections.send(connectionId, newData);
+
+//
+//                    names = new ArrayList<>(Arrays.asList(file.list()));
+//                    for (String fileName : names) {
+//                        filesList += fileName + "\0";
+//                    }
+//                    bytes = filesList.getBytes();
+//                    dataBlocksNeeded = bytes.length / 512 + 1;
+//                    newData = new DataMessage((short) (6), (short) 0, Arrays.copyOfRange(bytes, 0, (bytes.length < 512 ? bytes.length : 512)));
+//                    connections.send(connectionId, newData);
 
                     break;
                 case 7: //Login
