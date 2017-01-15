@@ -98,7 +98,7 @@ public class Reactor<T> implements Server<T> {
                 clientChan,
                 this);
         int connectionID = myConnections.getConnectionsID();
-        myConnections.register(handler,handler.getProtocol());//TODO:send to ActorPOOL not run this here
+        myConnections.register(handler);//TODO:send to ActorPOOL not run this here
         clientChan.register(selector, SelectionKey.OP_READ, handler);
         pool.submit(handler,()->handler.getProtocol().start(connectionID,myConnections));
 
