@@ -11,6 +11,7 @@ import bgu.spl171.net.impl.TFTP.msg.Acknowledge;
 import bgu.spl171.net.impl.TFTP.msg.Broadcast;
 import bgu.spl171.net.impl.TFTP.msg.Error;
 import java.io.*;
+import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,13 +50,22 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
         DataMessage newData;
         short currentOpcode = message.getOpCode();
 
-
+        System.out.println("message processed opcode: "+currentOpcode);
         if (loggedIn || currentOpcode == 7) {
 
             switch (currentOpcode) {
                 case 1://RRQ
                     lastOp=1;
-                    file = new File("Files/" + ((ReadWrite)message).getFilename());
+
+
+                    System.out.println("equel: " + "inbox.mp3".equals(((ReadWrite)message).getFilename()));
+                    System.out.println("inbox.mp3".getBytes().length);
+                    System.out.println(((ReadWrite)message).getFilename().getBytes().length);
+                    String path="Files/" + ((ReadWrite)message).getFilename();
+                    file = new File(path);
+
+                    System.out.println("Requested file name: "+((ReadWrite)message).getFilename() + " file exist :" + file.exists() +" "+ file.getPath());
+
                     if(file.exists()){
                         dataBlocksNeeded = file.length()/512 +1;
                         is = new FileInputStream(file);
@@ -93,6 +103,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     byte[] data = ((DataMessage)message).getData();
                     blockNum = ((DataMessage)message).getBlockNum();
                     try {
+
                         os.write(data);
                         os.flush();
                         connections.send(connectionId,new Acknowledge(blockNum));
@@ -106,7 +117,10 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                                 os.close();
                             }
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            if(os==null)
+                                System.out.println("@!#@!#!@#!#!@#!#  NULL!!!!! #$@#$@$#@$@#$@$@#$");
+                            else
+                                System.out.println("$#%#@$#$@#$@#$@#$@ OS CLOSED #@$@#$$%#$^#^$%^$");
                         }
 
                     }
@@ -148,15 +162,18 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                             if (blockNum < dataBlocksNeeded){
 
                                 try {
-                                    if ((blobLen = is.read(blob)) != -1) {
+                                    if (is!=null && (blobLen = is.read(blob)) != -1) {
                                         byte[] tempBlob = Arrays.copyOfRange(blob, 0, blobLen);
                                         connections.send(connectionId, new DataMessage((short) tempBlob.length, (short) (blockNum + 1), tempBlob));
                                     }else {
-                                        if(file.length()%512==0)
+                                        if(file!=null && file.length()%512==0)
                                             connections.send(connectionId, new DataMessage((short) 0, (short) (blockNum + 1), new byte[0]));
                                         is = null;
                                     }
                                 } catch (IOException e) {
+                                    e.printStackTrace();
+                                }catch (Exception e){
+                                    System.out.println("not IO Exception");
                                     e.printStackTrace();
                                 }
 
@@ -173,8 +190,9 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                 case 5://Error - upload/download failed in client side
                     if(lastOp==2){
                         try {
-                            os.close();
-                            if(file.exists())
+                            if(os!=null)
+                                os.close();
+                            if(file!=null && file.exists())
                                 file.delete();
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -191,6 +209,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     lastOp = 6;
 
                     for(String name:new File("Files/").list()){
+                        System.out.println(name);
                         try {
                             os.write(name.getBytes());
                             os.write((byte)'\0');
@@ -208,7 +227,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     }
                     dataBlocksNeeded = file.length() / 512 + 1;
 
-                    newData = new DataMessage((short) (6), (short) 0, bytes);
+                    newData = new DataMessage((short) bytes.length, (short) 0, bytes);
                     connections.send(connectionId, newData);
 
 //
@@ -255,6 +274,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             else
                 connections.send(connectionId, new Error((short) 6)); //User not logged in
         }
+        System.out.println("----------------process done------------------");
     }
     private boolean logIn(String userName){
         synchronized (loggedInUsers) {
