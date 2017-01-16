@@ -84,7 +84,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                             }else
                                 connections.send(connectionId, new Error((short) 5));//file already exists
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            connections.send(connectionId, new Error((short) 5));//file already exists
                         }
                     }
                     break;
