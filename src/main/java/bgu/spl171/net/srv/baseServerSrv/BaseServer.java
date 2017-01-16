@@ -40,6 +40,7 @@ public abstract class BaseServer<T> implements Server<T> {
 
             while (!Thread.currentThread().isInterrupted()) {
 
+                System.out.println("socket accept");
                 Socket clientSock = serverSock.accept();
 
                 BidiMessagingProtocol<T> tempProtocol = protocolFactory.get();
