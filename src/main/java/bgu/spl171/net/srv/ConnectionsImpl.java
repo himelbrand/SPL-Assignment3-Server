@@ -18,9 +18,11 @@ public class ConnectionsImpl<T> implements Connections<T> {
     @Override
     public boolean send(int connectionId, T msg) {
         if(connectionHandlerList.get(connectionId) != null) {
+            System.out.println("sendddd");
             connectionHandlerList.get(connectionId).send(msg);
             return true;
         }
+        System.out.println("not send");
         //connectionId not exist
         return false;
     }

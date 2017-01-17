@@ -75,14 +75,14 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
     public Message decode(byte[] message){
         Message decodeMessage;
         byte[] tempArray;
-
+        int index;
         short opCode =bytesToShort(message);
         System.out.println("opcode :"+opCode);
         switch(opCode){
             case 1:
             case 2:
 
-                int index = new String(Arrays.copyOfRange(message, 2,message.length)).indexOf('\0');
+                 index = new String(Arrays.copyOfRange(message, 2,message.length)).indexOf('\0');
 
                 tempArray =  Arrays.copyOfRange(message, 2,index+2);
                 String fileName = new String(tempArray, StandardCharsets.UTF_8);
@@ -102,13 +102,15 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
                 decodeMessage = new Acknowledge(bytesToShort(Arrays.copyOfRange(message,2,4)));
                 break;
             case 7:
-                tempArray =  Arrays.copyOfRange(message, 2,message.length);
+                 index = new String(Arrays.copyOfRange(message, 2,message.length)).indexOf('\0');
+                tempArray =  Arrays.copyOfRange(message, 2,index + 2);
                 String username = new String(tempArray, StandardCharsets.UTF_8);
                 decodeMessage = new Login(username);
                 break;
 
             case 8:
-                 tempArray =  Arrays.copyOfRange(message, 2,message.length -1);
+                index = new String(Arrays.copyOfRange(message, 2,message.length)).indexOf('\0');
+                tempArray =  Arrays.copyOfRange(message, 2,index + 2);
                 String deleteFileName = new String(tempArray, StandardCharsets.UTF_8);
                 decodeMessage = new DeleteFile(deleteFileName);
                 break;

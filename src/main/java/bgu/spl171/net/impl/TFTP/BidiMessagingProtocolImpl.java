@@ -10,6 +10,8 @@ import bgu.spl171.net.impl.TFTP.msg.ReadWrite;
 import bgu.spl171.net.impl.TFTP.msg.Acknowledge;
 import bgu.spl171.net.impl.TFTP.msg.Broadcast;
 import bgu.spl171.net.impl.TFTP.msg.Error;
+import bgu.spl171.net.srv.ConnectionsImpl;
+
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
@@ -21,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message> {
 
     private int connectionId;
-    private  Connections<Message> connections;
+    private ConnectionsImpl<Message> connections;
     private boolean shouldClose = false;
     static final ConcurrentHashMap<Integer,String> loggedInUsers= new ConcurrentHashMap<>();
     private boolean loggedIn =false;
@@ -38,7 +40,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     @Override
     public void start(int connectionId, Connections<Message> connections) {
         this.connectionId = connectionId;
-        this.connections = connections;
+        this.connections = (ConnectionsImpl<Message>)connections;
     }
 
     @Override
@@ -296,8 +298,10 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     }
     private void broadcast(Broadcast msg){
         for(Integer id : loggedInUsers.keySet()){
+            System.out.println("send broad to "+ id);
             connections.send(id,msg);
         }
+
     }
 
     @Override
