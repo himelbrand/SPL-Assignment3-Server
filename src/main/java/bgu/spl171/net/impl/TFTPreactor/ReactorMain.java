@@ -9,7 +9,7 @@ import bgu.spl171.net.srv.Server;
  */
 public class ReactorMain {
     public static void main(String[] args) {
-        System.out.println("hello");
+        System.out.println("hello!");
                 Server.reactor(
                 Runtime.getRuntime().availableProcessors(),
                 Integer.parseInt(args[0]), //port
