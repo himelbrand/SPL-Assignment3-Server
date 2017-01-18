@@ -226,7 +226,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     }
                     dataBlocksNeeded = file.length() / 512 + 1;
 
-                    newData = new DataMessage((short) bytes.length, (short) 0, bytes);
+                    newData = new DataMessage((short) bytes.length, (short) 1, bytes);
                     connections.send(connectionId, newData);
 
 //
