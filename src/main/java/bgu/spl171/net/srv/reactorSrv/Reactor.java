@@ -61,6 +61,11 @@ public class Reactor<T> implements Server<T> {
                     } else {
                         handleReadWrite(key);
                     }
+                    if(key.attachment() != null && ((NonBlockingConnectionHandler)(key.attachment())).getNeedsToBeClosed()){
+                        ((NonBlockingConnectionHandler)(key.attachment())).closeChanel();
+
+                    }
+
                 }
 
                 selector.selectedKeys().clear(); //clear the selected keys set so that we can know about new events

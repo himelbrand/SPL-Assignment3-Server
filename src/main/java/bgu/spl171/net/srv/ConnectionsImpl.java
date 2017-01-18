@@ -18,7 +18,7 @@ public class ConnectionsImpl<T> implements Connections<T> {
     @Override
     public boolean send(int connectionId, T msg) {
         if(connectionHandlerList.get(connectionId) != null) {
-            System.out.println("sendddd");
+        //@@    System.out.println("sendddd");
             connectionHandlerList.get(connectionId).send(msg);
             return true;
         }
@@ -37,6 +37,7 @@ public class ConnectionsImpl<T> implements Connections<T> {
     @Override
     public void disconnect(int connectionId) {
         try {
+
             connectionHandlerList.get(connectionId).close();
             connectionHandlerList.remove(connectionId);
         } catch (IOException e) {

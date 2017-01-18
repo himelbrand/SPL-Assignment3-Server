@@ -77,7 +77,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
         byte[] tempArray;
         int index;
         short opCode =bytesToShort(message);
-        System.out.println("opcode :"+opCode);
+       //@@ System.out.println("opcode :"+opCode);
         switch(opCode){
             case 1:
             case 2:
@@ -95,7 +95,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
                 short blockNum=bytesToShort(Arrays.copyOfRange(message,4,6));
                 tempArray =  Arrays.copyOfRange(message, 6,dataSize+6);
                 decodeMessage = new DataMessage(dataSize,blockNum,tempArray);
-                System.out.println("Data size : "+dataSize);
+              //@@  System.out.println("Data size : "+dataSize);
                 datePacketSize =0;
                 break;
             case 4:
@@ -153,12 +153,12 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
     public Message decodeNextByte(byte nextByte) {
         //notice that the top 128 ascii characters have the same representation as their utf-8 counterparts
         //this allow us to do the following comparison
-        System.out.println("nextbyte: "+nextByte);
-        System.out.println("len: "+len);
+     //   System.out.println("nextbyte: "+nextByte);
+     //   System.out.println("len: "+len);
         pushByte(nextByte);
         if(len == 2) {
             opCode = bytesToShort(bytes);
-           System.out.println("opcode: "+opCode );
+      //@@     System.out.println("opcode: "+opCode );
         }
         if(opCode != 0) {
             switch (opCode) {
@@ -167,14 +167,14 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
                 case 7:
                 case 8:
                     if (nextByte == '\0') {
-                        System.out.println(bytes.length +"length of bytes for opCode:"+opCode);
+                       //@@ System.out.println(bytes.length +"length of bytes for opCode:"+opCode);
                         return decode(bytes);
                     }
                     break;
                 case 3:
                     if (len == 4) {
                         datePacketSize = bytesToShort(Arrays.copyOfRange(bytes, 2, 4)) + 6;
-                        System.out.println("data packet size : "+datePacketSize);
+                    //@@    System.out.println("data packet size : "+datePacketSize);
                     }
                     if (datePacketSize == len)
                         return decode(bytes);
@@ -187,7 +187,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
                     break;
                 case 6:
                 case 10:
-                    System.out.println("case 6/10");
+                 //@@   System.out.println("case 6/10");
                     return decode(bytes);
                 default:
                     return decode(bytes);

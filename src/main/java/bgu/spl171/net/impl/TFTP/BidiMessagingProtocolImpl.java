@@ -45,14 +45,14 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
     @Override
     public void process(Message message) throws FileNotFoundException {
-
+       //@@ System.out.println("thread is " + Thread.currentThread().getId() + "| connections " + connectionId);
         String filesList;
         ArrayList<String> names;
         short blockNum;
         DataMessage newData;
         short currentOpcode = message.getOpCode();
 
-        System.out.println("message processed opcode: "+currentOpcode);
+      //@@  System.out.println("message processed opcode: "+currentOpcode);
         if (loggedIn || currentOpcode == 7) {
 
             switch (currentOpcode) {
@@ -60,13 +60,10 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     lastOp=1;
 
 
-                    System.out.println("equel: " + "inbox.mp3".equals(((ReadWrite)message).getFilename()));
-                    System.out.println("inbox.mp3".getBytes().length);
-                    System.out.println(((ReadWrite)message).getFilename().getBytes().length);
-                    String path="Files/" + ((ReadWrite)message).getFilename();
+                       String path="Files/" + ((ReadWrite)message).getFilename();
                     file = new File(path);
 
-                    System.out.println("Requested file name: "+((ReadWrite)message).getFilename() + " file exist :" + file.exists() +" "+ file.getPath());
+                  //@@  System.out.println("Requested file name: "+((ReadWrite)message).getFilename() + " file exist :" + file.exists() +" "+ file.getPath());
 
                     if(file.exists()){
                         dataBlocksNeeded = file.length()/512 +1;
@@ -260,7 +257,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                         connections.send(connectionId, new Error((short) 1)); //User already logged in
                     }
                     break;
-                case 10:
+                case 10://DISC
                     connections.send(connectionId, new Acknowledge((short) 0)); //user disconnected
                     logout();
                     connections.disconnect(connectionId);
@@ -276,7 +273,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
             else
                 connections.send(connectionId, new Error((short) 6)); //User not logged in
         }
-        System.out.println("----------------process done------------------");
+       // System.out.println("----------------process done------------------");
     }
     private boolean logIn(String userName){
         synchronized (loggedInUsers) {
