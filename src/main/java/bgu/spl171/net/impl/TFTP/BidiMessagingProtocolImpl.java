@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message> {
@@ -26,6 +27,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     private ConnectionsImpl<Message> connections;
     private boolean shouldClose = false;
     static final ConcurrentHashMap<Integer,String> loggedInUsers= new ConcurrentHashMap<>();
+    static final ConcurrentHashMap<String,AtomicInteger> filesInUse= new ConcurrentHashMap<>();
     private boolean loggedIn =false;
     private short lastOp;
     private File file;
@@ -70,11 +72,21 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
                     if(file.exists()){
                         dataBlocksNeeded = file.length()/512 +1;
+                        if(filesInUse.containsKey(file.getName())) {
+                            AtomicInteger uses=filesInUse.get(file.getName());
+                            filesInUse.put(file.getName(),new AtomicInteger(uses.incrementAndGet()));
+                        }else{
+                            filesInUse.put(file.getName(),new AtomicInteger(1));
+                        }
                         is = new FileInputStream(file);
                         try {
                             if((blobLen = is.read(blob))!=-1)
                                 connections.send(connectionId,new DataMessage((short)blobLen,(short)1,Arrays.copyOfRange(blob,0,blobLen)));
                         } catch (IOException e) {//TODO:check when this happens
+                            AtomicInteger uses=filesInUse.get(file.getName());
+                            filesInUse.put(file.getName(),new AtomicInteger(uses.decrementAndGet()));
+                            if(filesInUse.get(file.getName()).get()<=0)
+                                //TODO: remove from map
                             e.printStackTrace();
                         }
                     }else{
@@ -131,17 +143,27 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     blockNum = ((Acknowledge) message).getBlockNum();
                     switch (lastOp) {
                         case 1://RRQ
-                            try {
-                                if ((blobLen = is.read(blob)) != -1) {
-                                    byte[] tempBlob = Arrays.copyOfRange(blob, 0, blobLen);
-                                    connections.send(connectionId, new DataMessage((short) tempBlob.length, (short) (blockNum + 1), tempBlob));
-                                }else {
-                                    if(file.length()%512==0)
-                                        connections.send(connectionId, new DataMessage((short) 0, (short) (blockNum + 1), new byte[0]));
-                                    is = null;
+                            if (blockNum < dataBlocksNeeded) {
+                                try {
+                                    if ((blobLen = is.read(blob)) != -1) {
+                                        byte[] tempBlob = Arrays.copyOfRange(blob, 0, blobLen);
+                                        connections.send(connectionId, new DataMessage((short) tempBlob.length, (short) (blockNum + 1), tempBlob));
+                                    } else {
+                                        if (file.length() % 512 == 0)
+                                            connections.send(connectionId, new DataMessage((short) 0, (short) (blockNum + 1), new byte[0]));
+                                        is = null;
+                                    }
+                                } catch (IOException e) {//TODO:check when this happens
+                                    e.printStackTrace();
                                 }
-                            } catch (IOException e) {//TODO:check when this happens
-                                e.printStackTrace();
+                            }else{
+                                String fileToDelete=file.getName();
+                                AtomicInteger uses=filesInUse.get(fileToDelete);
+                                if(uses.get()<=0)
+                                    filesInUse.remove(fileToDelete);
+                                filesInUse.put(fileToDelete,new AtomicInteger(uses.decrementAndGet()));
+                                is=null;
+                                file = null;
                             }
                             break;
                         case 6: //DIRQ
@@ -252,13 +274,19 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     break;
                 case 8:
                     file = new File("Files/" + ((DeleteFile)message).getFilename());
-                    if(file.exists()){
-                        file.delete();
-                        connections.send(connectionId, new Acknowledge((short) 0)); //file deleted
-                        broadcast(new Broadcast((byte)(0),((DeleteFile)message).getFilename()));
-                    }else{
-                        connections.send(connectionId, new Error((short) 1)); //User already logged in
+
+                    if(file.exists()) {
+                        if (!filesInUse.containsKey(file.getName())) {
+                            file.delete();
+                            connections.send(connectionId, new Acknowledge((short) 0)); //file deleted
+                            broadcast(new Broadcast((byte) (0), ((DeleteFile) message).getFilename()));
+                        } else {
+                            connections.send(connectionId, new Error((short) 2)); //file in use
+                        }
+                    }else {
+                        connections.send(connectionId, new Error((short) 1)); //file not found
                     }
+
                     break;
                 case 10:
                     connections.send(connectionId, new Acknowledge((short) 0)); //user disconnected

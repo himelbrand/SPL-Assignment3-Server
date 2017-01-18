@@ -13,7 +13,7 @@ public class ReactorMain {
                 Server.reactor(
                 Runtime.getRuntime().availableProcessors(),
                 Integer.parseInt(args[0]), //port
-                BidiMessagingProtocolImpl::new, //protocol factory
+                        () -> new BidiMessagingProtocolImpl(){}, //protocol factory
                 MessageEncoderDecoderImpl::new //message encoder decoder factory
         ).serve();
 
