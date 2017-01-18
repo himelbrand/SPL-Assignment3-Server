@@ -76,7 +76,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
     }
 
     public void close() {
-            System.out.println("close by thread" + Thread.currentThread().getId());
+//            System.out.println("close by thread" + Thread.currentThread().getId());
             needsToBeClosed = true;
     }
 

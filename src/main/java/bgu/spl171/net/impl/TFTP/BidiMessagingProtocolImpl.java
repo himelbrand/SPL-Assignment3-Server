@@ -156,10 +156,11 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                             }else{
                                 String fileToDelete=file.getName();
                                 AtomicInteger uses=filesInUse.get(fileToDelete);
-                                System.out.println("file users: "+uses.get());
+
+                                filesInUse.put(fileToDelete,new AtomicInteger(uses.decrementAndGet()));
                                 if(uses.get()<=0)
                                     filesInUse.remove(fileToDelete);
-                                filesInUse.put(fileToDelete,new AtomicInteger(uses.decrementAndGet()));
+//                                System.out.println("file users: "+uses.get());
                                 is=null;
                                 file = null;
                             }
@@ -231,7 +232,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     lastOp = 6;
 
                     for(String name:new File("Files/").list()){
-                        System.out.println(name);
+                      //  System.out.println(name);
                         try {
                             os.write(name.getBytes());
                             os.write((byte)'\0');
@@ -324,7 +325,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     }
     private void broadcast(Broadcast msg){
         for(Integer id : loggedInUsers.keySet()){
-            System.out.println("send broad to "+ id);
+//            System.out.println("send broad to "+ id);
             connections.send(id,msg);
         }
 
