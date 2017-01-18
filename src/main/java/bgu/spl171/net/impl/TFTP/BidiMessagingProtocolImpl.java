@@ -156,6 +156,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                             }else{
                                 String fileToDelete=file.getName();
                                 AtomicInteger uses=filesInUse.get(fileToDelete);
+                                System.out.println("file users: "+uses.get());
                                 if(uses.get()<=0)
                                     filesInUse.remove(fileToDelete);
                                 filesInUse.put(fileToDelete,new AtomicInteger(uses.decrementAndGet()));
