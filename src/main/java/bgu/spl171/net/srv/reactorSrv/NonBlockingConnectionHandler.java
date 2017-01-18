@@ -4,6 +4,7 @@ import bgu.spl171.net.api.MessageEncoderDecoder;
 import bgu.spl171.net.api.MessagingProtocol;
 import bgu.spl171.net.api.bidi.BidiMessagingProtocol;
 import bgu.spl171.net.srv.bidi.ConnectionHandler;
+import org.omg.PortableServer.THREAD_POLICY_ID;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -26,6 +27,8 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
     private final SocketChannel chan;
     private final Reactor reactor;
 
+    private boolean needsToBeClosed = false;
+
     public NonBlockingConnectionHandler(
             MessageEncoderDecoder<T> reader,
             BidiMessagingProtocol<T> protocol,
@@ -38,6 +41,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
     }
 
     public Runnable continueRead() {
+        System.out.println("read by thread" + Thread.currentThread().getId());
         ByteBuffer buf = leaseBuffer();
 
         boolean success = false;
@@ -72,18 +76,24 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
     }
 
     public void close() {
+            System.out.println("close by thread" + Thread.currentThread().getId());
+            needsToBeClosed = true;
+    }
+
+
+    public boolean getNeedsToBeClosed(){
+        return needsToBeClosed;
+    }
+
+    public void closeChanel(){
         try {
             chan.close();
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
-
-    public boolean isClosed() {
-        return !chan.isOpen();
-    }
-
     public void continueWrite() {
+        System.out.println("write thread" + Thread.currentThread().getId());
         while (!writeQueue.isEmpty()) {
             try {
                 ByteBuffer top = writeQueue.peek();

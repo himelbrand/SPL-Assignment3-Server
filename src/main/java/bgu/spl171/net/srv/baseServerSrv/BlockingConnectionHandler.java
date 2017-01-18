@@ -81,7 +81,8 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
     @Override
     public void send(T msg) {
         try {
-            System.out.println(msg.toString());
+       //     System.out.println("thread is " + Thread.currentThread().getId() + "| connections " + connectionId);
+           // System.out.println(msg.toString());
             out.write(encdec.encode(msg));
             out.flush();
         } catch (IOException e) {
