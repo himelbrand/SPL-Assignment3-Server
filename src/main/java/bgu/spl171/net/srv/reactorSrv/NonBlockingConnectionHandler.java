@@ -41,7 +41,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
     }
 
     public Runnable continueRead() {
-        System.out.println("read by thread" + Thread.currentThread().getId());
+        //@@ System.out.println("read by thread" + Thread.currentThread().getId());
         ByteBuffer buf = leaseBuffer();
 
         boolean success = false;
@@ -93,7 +93,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
         }
     }
     public void continueWrite() {
-        System.out.println("write thread" + Thread.currentThread().getId());
+  //@@      System.out.println("write thread" + Thread.currentThread().getId());
         while (!writeQueue.isEmpty()) {
             try {
                 ByteBuffer top = writeQueue.peek();
