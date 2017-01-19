@@ -13,9 +13,7 @@ import bgu.spl171.net.impl.TFTP.msg.Error;
 import bgu.spl171.net.srv.ConnectionsImpl;
 
 import java.io.*;
-import java.net.URL;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -212,6 +210,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     }
                     break;
                 case 5://Error - upload/download failed in client side
+                    System.out.println("Error received  from Client - error number: "+((Error)message).getErrorCode() +" error message:" + ((Error)message).getErrorMsg());
                     if(lastOp==2){
                         try {
                             if(os!=null)
@@ -227,8 +226,6 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     is=null;
                     break;
                 case 6: //DIRQ Packets req
-
-                  //  file = new File("Temp/"+connectionId+"DIR");
                     file = new File("Files/TempFiles/"+connectionId+".DIRQ");
                     os = new FileOutputStream(file);
                     lastOp = 6;
