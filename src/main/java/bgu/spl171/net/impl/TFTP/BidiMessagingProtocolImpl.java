@@ -67,7 +67,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
                   //@@  System.out.println("Requested file name: "+((ReadWrite)message).getFilename() + " file exist :" + file.exists() +" "+ file.getPath());
 
-                    if(file.exists() && !((ReadWrite)message).getFilename().endsWith(".TFTPEX")){
+                    if(file.exists() && ((ReadWrite)message).getFilename() != "TempFiles"){
                         dataBlocksNeeded = file.length()/512 +1;
                         if(filesInUse.containsKey(file.getName())) {
                             AtomicInteger uses=filesInUse.get(file.getName());
@@ -96,7 +96,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     if(file.exists()){//ERROR
                         connections.send(connectionId, new Error((short) 5));//file already exists
                     }else{
-                        file = new File("Files/" + ((ReadWrite)message).getFilename() + ".TFTPEX");
+                        file = new File("Files/TempFiles/" + ((ReadWrite)message).getFilename());
                         try {
                             if(!file.exists()){
                                 file.createNewFile();
@@ -125,9 +125,9 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                             if(dataSize<512){
                                 //System.out.println(file.getPath());
 
-                                file.renameTo(new File(file.getPath().substring(0,file.getPath().length() - 7)));
+                                //file.renameTo(new File(file.getPath().substring(0,file.getPath().length() - 7)));
 //                                new File(file.getParent(),file.getParent().substring(0,file.getParent().length() - 6));
-                                //Files.move(file.toPath(),new File("Files/"+file.getName()).toPath());
+                                Files.move(file.toPath(),new File("Files/"+file.getName()).toPath());
                                 broadcast(new Broadcast((byte) 1,file.getName()));
                                 os.close();
                             }
@@ -229,16 +229,15 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     os=null;
                     is=null;
                     break;
-                case 6: //DIRQ Packets
+                case 6: //DIRQ Packets req
 
                   //  file = new File("Temp/"+connectionId+"DIR");
-                    file = new File("Files/"+connectionId+".TFTPEX");
+                    file = new File("Files/TempFiles/"+connectionId+".DIRQ");
                     os = new FileOutputStream(file);
                     lastOp = 6;
 
                     for(String name:new File("Files/").list()){
-                        if (!name.endsWith(".TFTPEX")) {
-                            //  System.out.println(name);
+                        if (!name.equals("TempFiles")) {
                             try {
                                 os.write(name.getBytes());
                                 os.write((byte) '\0');
