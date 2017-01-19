@@ -48,8 +48,6 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
     @Override
     public void process(Message message) throws FileNotFoundException {
        //@@ System.out.println("thread is " + Thread.currentThread().getId() + "| connections " + connectionId);
-        String filesList;
-        ArrayList<String> names;
         short blockNum;
         DataMessage newData;
         short currentOpcode = message.getOpCode();
@@ -69,21 +67,21 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
 
                     if(file.exists()){
                         dataBlocksNeeded = file.length()/512 +1;
-                        if(filesInUse.containsKey(file.getName())) {
-                            AtomicInteger uses=filesInUse.get(file.getName());
-                            filesInUse.put(file.getName(),new AtomicInteger(uses.incrementAndGet()));
+                        String fileToRead= file.getName();
+                        if(filesInUse.containsKey(fileToRead)) {
+                            filesInUse.put(fileToRead,new AtomicInteger(filesInUse.get(fileToRead).incrementAndGet()));
                         }else{
-                            filesInUse.put(file.getName(),new AtomicInteger(1));
+                            filesInUse.put(fileToRead,new AtomicInteger(1));
                         }
                         is = new FileInputStream(file);
                         try {
                             if((blobLen = is.read(blob))!=-1)
                                 connections.send(connectionId,new DataMessage((short)blobLen,(short)1,Arrays.copyOfRange(blob,0,blobLen)));
-                        } catch (IOException e) {//TODO:check when this happens
+                        } catch (IOException e) {
                             AtomicInteger uses=filesInUse.get(file.getName());
                             filesInUse.put(file.getName(),new AtomicInteger(uses.decrementAndGet()));
                             if(filesInUse.get(file.getName()).get()<=0)
-                                //TODO: remove from map
+                                filesInUse.remove(fileToRead);
                             e.printStackTrace();
                         }
                     }else{
@@ -114,7 +112,6 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     byte[] data = ((DataMessage)message).getData();
                     blockNum = ((DataMessage)message).getBlockNum();
                     try {
-
                         os.write(data);
                         os.flush();
                         connections.send(connectionId,new Acknowledge(blockNum));
@@ -155,10 +152,10 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                                 }
                             }else{
                                 String fileToDelete=file.getName();
-                                AtomicInteger uses=filesInUse.get(fileToDelete);
 
-                                filesInUse.put(fileToDelete,new AtomicInteger(uses.decrementAndGet()));
-                                if(uses.get()<=0)
+
+                                filesInUse.put(fileToDelete,new AtomicInteger(filesInUse.get(fileToDelete).decrementAndGet()));
+                                if(filesInUse.get(fileToDelete).get()<=0)
                                     filesInUse.remove(fileToDelete);
 //                                System.out.println("file users: "+uses.get());
                                 is=null;
