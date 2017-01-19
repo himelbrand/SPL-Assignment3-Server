@@ -69,6 +69,13 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
                 }
                 break;
         }
+
+//        for(int i=0;i<message.getPacketSize();
+//            i++)
+//        {
+//            System.out.println(encodedMessage[i]);
+//        }
+
         return encodedMessage;
     }
 
@@ -154,7 +161,7 @@ public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message>
         //notice that the top 128 ascii characters have the same representation as their utf-8 counterparts
         //this allow us to do the following comparison
      //   System.out.println("nextbyte: "+nextByte);
-     //   System.out.println("len: "+len);
+      //  System.out.println("len: "+len);
         pushByte(nextByte);
         if(len == 2) {
             opCode = bytesToShort(bytes);
