@@ -142,6 +142,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     break;
                 case 4: // ACK
                     blockNum = ((Acknowledge) message).getBlockNum();
+                    System.out.println("blockNumber " + blockNum + " dataBlocksNeeded " +dataBlocksNeeded);
                     switch (lastOp) {
                         case 1://RRQ
                             if (blockNum < dataBlocksNeeded) {
@@ -160,7 +161,6 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                             }else{
                                 String fileToDelete=file.getName();
                                 AtomicInteger uses=filesInUse.get(fileToDelete);
-
                                 filesInUse.put(fileToDelete,new AtomicInteger(uses.decrementAndGet()));
                                 if(uses.get()<=0)
                                     filesInUse.remove(fileToDelete);
