@@ -19,5 +19,6 @@ public class TPCMain {
                 BidiMessagingProtocolTFTP::new, //protocol factory
                 MessageEncoderDecoderTFTP::new //message encoder decoder factory
         ).serve();
+        System.out.println("TPC server started");
     }
 }

@@ -20,6 +20,6 @@ public class ReactorMain {
                         () -> new BidiMessagingProtocolTFTP(), //protocol factory
                         () -> new MessageEncoderDecoderTFTP() //message encoder decoder factory
         ).serve();
-
+        System.out.println("Reactor server started");
     }
 }
