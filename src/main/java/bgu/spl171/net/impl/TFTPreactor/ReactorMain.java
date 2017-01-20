@@ -6,6 +6,11 @@ import bgu.spl171.net.srv.Server;
 
 import java.io.File;
 
+/**
+ * Executable class of reactor server
+ * @author Omri Himelbrand
+ * @author Shahar Nussbaum
+ */
 public class ReactorMain {
     public static void main(String[] args) {
         new File("Files/TempFiles").mkdirs();//creates folder for temp files

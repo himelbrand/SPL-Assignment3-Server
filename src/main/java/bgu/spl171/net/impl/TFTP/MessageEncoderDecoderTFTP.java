@@ -13,7 +13,12 @@ import bgu.spl171.net.impl.TFTP.msg.Broadcast;
 import bgu.spl171.net.impl.TFTP.msg.Error;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-
+/**
+ * This is the implementation of {@link MessageEncoderDecoder} using {@link Message},
+ * an encoder decoder for our TFTP protocol
+ * @author Omri Himelbrand
+ * @author Shahar Nussbaum
+ */
 public class MessageEncoderDecoderTFTP implements MessageEncoderDecoder<Message> {
 
     private byte[] bytes = new byte[1 << 10]; //start with 1k

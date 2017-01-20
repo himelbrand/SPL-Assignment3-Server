@@ -9,7 +9,12 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.function.Supplier;
-
+/**
+ * This is the implementation of {@link Server}
+ * a TPC server
+ * @author Omri Himelbrand
+ * @author Shahar Nussbaum
+ */
 public abstract class BaseServer<T> implements Server<T> {
 
     private final int port;

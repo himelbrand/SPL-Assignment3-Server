@@ -10,7 +10,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
+/**
+ * This is the Thread pool used by the reactor server
+ * @author Omri Himelbrand
+ * @author Shahar Nussbaum
+ */
 public class ActorThreadPool {
 
     private final Map<Object, Queue<Runnable>> acts;

@@ -1,5 +1,9 @@
 package bgu.spl171.net.impl.TFTP.msg;
-
+/**
+ * Data Message
+ * @author Omri Himelbrand
+ * @author Shahar Nussbaum
+ */
 public class DataMessage extends Message {
     private short dataSize;
     private short blockNum;

@@ -1,5 +1,9 @@
 package bgu.spl171.net.impl.TFTP.msg;
-
+/**
+ * Read or Write request Message
+ * @author Omri Himelbrand
+ * @author Shahar Nussbaum
+ */
 public class ReadWrite extends Message {
     private String filename;
 

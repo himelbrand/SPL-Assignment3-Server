@@ -9,7 +9,12 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-
+/**
+ * This is the implementation of {@link ConnectionHandler} and of {@link Runnable}.
+ * This is a blocking connection handler, used by a TPC server
+ * @author Omri Himelbrand
+ * @author Shahar Nussbaum
+ */
 public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler<T> {
 
     private final BidiMessagingProtocol<T> protocol;

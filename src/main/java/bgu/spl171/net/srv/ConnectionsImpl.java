@@ -5,7 +5,11 @@ import bgu.spl171.net.srv.bidi.ConnectionHandler;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-
+/**
+ * This is the implemention of {@link Connections}, used by the server
+ * @author Omri Himelbrand
+ * @author Shahar Nussbaum
+ */
 public class ConnectionsImpl<T> implements Connections<T> {
 
     private ConcurrentHashMap<Integer,ConnectionHandler<T>> connectionHandlerList = new ConcurrentHashMap<>();

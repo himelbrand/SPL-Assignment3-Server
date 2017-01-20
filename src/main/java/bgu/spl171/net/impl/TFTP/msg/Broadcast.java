@@ -1,5 +1,9 @@
 package bgu.spl171.net.impl.TFTP.msg;
-
+/**
+ * Broadcast Message
+ * @author Omri Himelbrand
+ * @author Shahar Nussbaum
+ */
 public class Broadcast extends Message {
     private byte isAdded;
     private String filename;

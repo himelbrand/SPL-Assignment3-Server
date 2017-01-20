@@ -5,7 +5,11 @@ import bgu.spl171.net.impl.TFTP.MessageEncoderDecoderTFTP;
 import bgu.spl171.net.srv.Server;
 
 import java.io.File;
-
+/**
+ * Executable class of TPC server
+ * @author Omri Himelbrand
+ * @author Shahar Nussbaum
+ */
 public class TPCMain {
 
     public static void main(String[] args) {

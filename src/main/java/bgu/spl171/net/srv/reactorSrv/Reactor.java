@@ -11,7 +11,12 @@ import java.net.InetSocketAddress;
 import java.nio.channels.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
-
+/**
+ * This is the implementation of {@link Server}
+ * a Reactor server
+ * @author Omri Himelbrand
+ * @author Shahar Nussbaum
+ */
 public class Reactor<T> implements Server<T> {
 
     private final int port;

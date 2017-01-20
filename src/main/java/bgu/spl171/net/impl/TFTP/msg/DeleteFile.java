@@ -1,5 +1,9 @@
 package bgu.spl171.net.impl.TFTP.msg;
-
+/**
+ * Delete file request Message
+ * @author Omri Himelbrand
+ * @author Shahar Nussbaum
+ */
 public class DeleteFile extends Message {
     private String filename;
 

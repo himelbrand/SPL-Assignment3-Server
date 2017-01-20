@@ -10,6 +10,11 @@ import bgu.spl171.net.srv.reactorSrv.Reactor;
 import java.io.Closeable;
 import java.util.function.Supplier;
 
+/**
+ * This is an interface used to create a TPC or Reactor server using the static methods
+ * those servers types also implements this interface
+ * @param <T> The server Message Object
+ */
 public interface Server<T> extends Closeable {
 
     /**

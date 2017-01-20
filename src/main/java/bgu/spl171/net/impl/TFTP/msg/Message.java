@@ -1,5 +1,9 @@
 package bgu.spl171.net.impl.TFTP.msg;
-
+/**
+ * Generic Message all other messages extends this one
+ * @author Omri Himelbrand
+ * @author Shahar Nussbaum
+ */
 public class Message {
     private short opCode;
     protected int packetSize;

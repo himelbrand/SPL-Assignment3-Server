@@ -9,8 +9,9 @@ import java.io.Closeable;
 import java.io.IOException;
 
 /**
- *
- * @author bennyl
+ * This is the interface implemented by {@link bgu.spl171.net.srv.reactorSrv.NonBlockingConnectionHandler} and {@link bgu.spl171.net.srv.baseServerSrv.BlockingConnectionHandler}
+ * @author Omri Himelbrand
+ * @author Shahar Nussbaum
  */
 public interface ConnectionHandler<T> extends Closeable{
     /**

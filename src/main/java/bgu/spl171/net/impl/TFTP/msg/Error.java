@@ -1,5 +1,9 @@
 package bgu.spl171.net.impl.TFTP.msg;
-
+/**
+ * Error Message
+ * @author Omri Himelbrand
+ * @author Shahar Nussbaum
+ */
 public class Error extends Message {
     private short errorCode;
     private String errorMsg;

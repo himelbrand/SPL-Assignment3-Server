@@ -1,6 +1,10 @@
 package bgu.spl171.net.impl.TFTP.msg;
 
-
+/**
+ * Acknowledge Message
+ * @author Omri Himelbrand
+ * @author Shahar Nussbaum
+ */
 public class Acknowledge extends Message {
     private short blockNum;
 

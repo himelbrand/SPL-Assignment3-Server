@@ -1,5 +1,9 @@
 package bgu.spl171.net.impl.TFTP.msg;
-
+/**
+ * Login request Message
+ * @author Omri Himelbrand
+ * @author Shahar Nussbaum
+ */
 public class Login extends Message {
     private String username;
 

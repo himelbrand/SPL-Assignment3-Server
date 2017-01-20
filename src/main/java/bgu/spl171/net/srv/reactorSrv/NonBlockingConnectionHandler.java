@@ -15,7 +15,12 @@ import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
+/**
+ * This is the implementation of {@link ConnectionHandler}.
+ * This is a non-blocking connection handler, used by a Reactor server
+ * @author Omri Himelbrand
+ * @author Shahar Nussbaum
+ */
 public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
 
     private static final int BUFFER_ALLOCATION_SIZE = 1 << 13; //8k

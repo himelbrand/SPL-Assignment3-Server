@@ -18,7 +18,12 @@ import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
+/**
+ * This is the implementation of {@link BidiMessagingProtocol} using {@link Message}
+ * a bi-directional TFTP protocol
+ * @author Omri Himelbrand
+ * @author Shahar Nussbaum
+ */
 public class BidiMessagingProtocolTFTP implements BidiMessagingProtocol<Message> {
 
     private int connectionId;
