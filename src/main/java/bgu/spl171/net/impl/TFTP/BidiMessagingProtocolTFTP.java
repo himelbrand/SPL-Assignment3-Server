@@ -110,6 +110,7 @@ public class BidiMessagingProtocolTFTP implements BidiMessagingProtocol<Message>
                     byte[] data = ((DataMessage)message).getData();
                     blockNum = ((DataMessage)message).getBlockNum();
                     try {
+
                         os.write(data);
                         os.flush();
                         connections.send(connectionId,new Acknowledge(blockNum));
