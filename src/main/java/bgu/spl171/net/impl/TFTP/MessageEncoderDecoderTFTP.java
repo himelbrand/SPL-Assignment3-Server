@@ -17,7 +17,7 @@ import java.util.Arrays;
 /**
  * Created by himelbrand on 1/9/17.
  */
-public class MessageEncoderDecoderImpl implements MessageEncoderDecoder<Message> {
+public class MessageEncoderDecoderTFTP implements MessageEncoderDecoder<Message> {
 
     private byte[] bytes = new byte[1 << 10]; //start with 1k
     private int len = 0;

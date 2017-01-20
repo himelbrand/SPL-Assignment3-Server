@@ -1,7 +1,7 @@
 package bgu.spl171.net.impl.TFTPtpc;
 
-import bgu.spl171.net.impl.TFTP.BidiMessagingProtocolImpl;
-import bgu.spl171.net.impl.TFTP.MessageEncoderDecoderImpl;
+import bgu.spl171.net.impl.TFTP.BidiMessagingProtocolTFTP;
+import bgu.spl171.net.impl.TFTP.MessageEncoderDecoderTFTP;
 import bgu.spl171.net.srv.Server;
 
 import java.io.File;
@@ -17,8 +17,8 @@ public class TPCMain {
         new File("Files/TempFiles").mkdirs();
         Server.threadPerClient(
                 Integer.parseInt(args[0]), //port
-                BidiMessagingProtocolImpl::new, //protocol factory
-                MessageEncoderDecoderImpl::new //message encoder decoder factory
+                BidiMessagingProtocolTFTP::new, //protocol factory
+                MessageEncoderDecoderTFTP::new //message encoder decoder factory
         ).serve();
 
 

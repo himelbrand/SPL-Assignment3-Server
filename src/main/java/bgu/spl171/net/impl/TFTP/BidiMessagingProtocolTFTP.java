@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
-public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message> {
+public class BidiMessagingProtocolTFTP implements BidiMessagingProtocol<Message> {
 
     private int connectionId;
     private ConnectionsImpl<Message> connections;

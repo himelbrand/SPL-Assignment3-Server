@@ -1,7 +1,7 @@
 package bgu.spl171.net.impl.TFTPreactor;
 
-import bgu.spl171.net.impl.TFTP.BidiMessagingProtocolImpl;
-import bgu.spl171.net.impl.TFTP.MessageEncoderDecoderImpl;
+import bgu.spl171.net.impl.TFTP.BidiMessagingProtocolTFTP;
+import bgu.spl171.net.impl.TFTP.MessageEncoderDecoderTFTP;
 import bgu.spl171.net.srv.Server;
 
 import java.io.File;
@@ -15,8 +15,8 @@ public class ReactorMain {
                 Server.reactor(
                 Runtime.getRuntime().availableProcessors(),
                 Integer.parseInt(args[0]), //port
-                        () -> new BidiMessagingProtocolImpl(), //protocol factory
-                        () -> new MessageEncoderDecoderImpl() //message encoder decoder factory
+                        () -> new BidiMessagingProtocolTFTP(), //protocol factory
+                        () -> new MessageEncoderDecoderTFTP() //message encoder decoder factory
         ).serve();
 
     }
