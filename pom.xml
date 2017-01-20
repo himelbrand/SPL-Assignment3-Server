@@ -12,34 +12,4 @@
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
     <name>spl-net</name>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.5.0</version>
-                <executions>
-                    <execution>
-                        <id>TPC</id>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                        <configuration>
-                            <mainClass>bgu.spl171.net.impl.TFTPtpc.TPCMain</mainClass>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>Reactor</id>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                        <configuration>
-                            <mainClass>bgu.spl171.net.impl.TFTPreactor.ReactorMain</mainClass>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-    
 </project>
