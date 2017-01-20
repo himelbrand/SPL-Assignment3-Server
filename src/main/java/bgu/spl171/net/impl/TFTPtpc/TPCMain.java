@@ -9,15 +9,11 @@ import java.io.File;
 public class TPCMain {
 
     public static void main(String[] args) {
-
-        new File("Files/TempFiles").mkdirs();
+        new File("Files/TempFiles").mkdirs();//creates folder for temp files
         Server.threadPerClient(
                 Integer.parseInt(args[0]), //port
                 BidiMessagingProtocolTFTP::new, //protocol factory
                 MessageEncoderDecoderTFTP::new //message encoder decoder factory
         ).serve();
-
-
-
     }
 }
