@@ -6,10 +6,6 @@ import bgu.spl171.net.srv.Server;
 
 import java.io.File;
 
-
-/**
- * Created by himelbrand on 1/9/17.
- */
 public class TPCMain {
 
     public static void main(String[] args) {

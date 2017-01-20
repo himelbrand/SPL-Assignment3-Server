@@ -1,13 +1,14 @@
 package bgu.spl171.net.impl.TFTP.msg;
 
-/**
- * Created by himelbrand on 1/9/17.
- */
 public class Error extends Message {
     private short errorCode;
     private String errorMsg;
+
+    /**
+     * Constructor
+     * @param errorCode the code number of the needed error
+     */
     public Error(short errorCode) {
-        //TODO: change error messages
         super((short) 5);
         this.errorCode = errorCode;
         switch (errorCode){
@@ -39,10 +40,15 @@ public class Error extends Message {
         this.packetSize=5+errorMsg.getBytes().length;
     }
 
+    /**
+     * @return the error code of this error
+     */
     public short getErrorCode() {
         return errorCode;
     }
-
+    /**
+     * @return the error message of this error
+     */
     public String getErrorMsg() {
         return errorMsg;
     }

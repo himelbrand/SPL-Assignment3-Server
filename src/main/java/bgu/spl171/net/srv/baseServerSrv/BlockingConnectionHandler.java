@@ -22,6 +22,12 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
     private int connectionId;
     private ConnectionsImpl<T> myConnections;
 
+    /**
+     * Constructor
+     * @param sock the socket for this connection handler
+     * @param reader the encoder decoder for this connection handler
+     * @param protocol the protocol for this connection handler
+     */
     public BlockingConnectionHandler(Socket sock, MessageEncoderDecoder<T> reader, BidiMessagingProtocol<T> protocol) {
         this.sock = sock;
         this.encdec = reader;
@@ -32,8 +38,7 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
 
     @Override
     public void run() {
-
-        protocol.start(this.connectionId,myConnections);//TODO:maybe need to move this part
+        protocol.start(this.connectionId,myConnections);
         try (Socket sock = this.sock) { //just for automatic closing
             int read;
 
@@ -50,23 +55,26 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
                     System.out.println();
                     System.out.println();
                     protocol.process(nextMessage);
-//                    if (response != null) {
-//                        out.write(encdec.encode(response));
-//                        out.flush();
-//                    }
                 }
             }
-
         } catch (IOException ex) {
             ex.printStackTrace();
         }
 
     }
 
+    /**
+     * set the connection ID by the given ID
+     * @param connectionId the given connection ID
+     */
     public void setConnectionId(int connectionId){
         this.connectionId=connectionId;
     }
 
+    /**
+     * sets the connection associated with this connection handler
+     * @param connections the given connections
+     */
     public void setConnections(ConnectionsImpl<T> connections){
         this.myConnections = connections;
 
@@ -81,13 +89,10 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
     @Override
     public void send(T msg) {
         try {
-       //     System.out.println("thread is " + Thread.currentThread().getId() + "| connections " + connectionId);
-           // System.out.println(msg.toString());
             out.write(encdec.encode(msg));
             out.flush();
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("error blocking connectionHandler");
         }
     }
 }

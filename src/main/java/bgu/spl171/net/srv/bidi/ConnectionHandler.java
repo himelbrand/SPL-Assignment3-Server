@@ -13,7 +13,10 @@ import java.io.IOException;
  * @author bennyl
  */
 public interface ConnectionHandler<T> extends Closeable{
-
+    /**
+     * sends a given message
+     * @param msg the given message
+     */
     void send(T msg) ;
 
 }

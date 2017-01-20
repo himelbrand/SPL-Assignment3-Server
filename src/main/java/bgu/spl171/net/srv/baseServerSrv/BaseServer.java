@@ -18,11 +18,16 @@ public abstract class BaseServer<T> implements Server<T> {
     private ServerSocket sock;
     private int i =0;
 
+    /**
+     * Constructor
+     * @param port wanted port
+     * @param protocolFactory wanted protocol factory
+     * @param encdecFactory wanted encoder decoder factory
+     */
     public BaseServer(
             int port,
             Supplier<BidiMessagingProtocol<T>> protocolFactory,
             Supplier<MessageEncoderDecoder<T>> encdecFactory) {
-
         this.port = port;
         this.protocolFactory = protocolFactory;
         this.encdecFactory = encdecFactory;
@@ -39,12 +44,10 @@ public abstract class BaseServer<T> implements Server<T> {
             ConnectionsImpl<T> myConnections = new ConnectionsImpl<>();
 
             while (!Thread.currentThread().isInterrupted()) {
-
-                System.out.println("socket accept");
                 Socket clientSock = serverSock.accept();
 
                 BidiMessagingProtocol<T> tempProtocol = protocolFactory.get();
-                BlockingConnectionHandler<T> handler = new BlockingConnectionHandler<T>(
+                BlockingConnectionHandler<T> handler = new BlockingConnectionHandler<>(
                         clientSock,
                         encdecFactory.get(),
                         tempProtocol);
@@ -55,10 +58,8 @@ public abstract class BaseServer<T> implements Server<T> {
                 execute(handler);
             }
         } catch (IOException ex) {
-
+            ex.printStackTrace();
         }
-
-        System.out.println("server closed!!!");
     }
 
     @Override

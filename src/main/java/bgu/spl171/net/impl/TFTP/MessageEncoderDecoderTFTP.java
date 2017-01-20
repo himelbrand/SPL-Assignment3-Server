@@ -14,9 +14,6 @@ import bgu.spl171.net.impl.TFTP.msg.Error;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-/**
- * Created by himelbrand on 1/9/17.
- */
 public class MessageEncoderDecoderTFTP implements MessageEncoderDecoder<Message> {
 
     private byte[] bytes = new byte[1 << 10]; //start with 1k
@@ -26,7 +23,6 @@ public class MessageEncoderDecoderTFTP implements MessageEncoderDecoder<Message>
 
     @Override
     public byte[] encode(Message message) {
-
         byte[] encodedMessage = new byte[message.getPacketSize()];
         byte[] tempBytes;
         encodedMessage[0] = shortToBytes(message.getOpCode())[0];
@@ -43,11 +39,11 @@ public class MessageEncoderDecoderTFTP implements MessageEncoderDecoder<Message>
                 if(((Broadcast)message).getFilename().contains("/0"))
                     encodedMessage=null;
                 break;
-            case 4:
+            case 4://Acknowledge
                 encodedMessage[2] = shortToBytes(((Acknowledge)message).getBlockNum())[0];
                 encodedMessage[3] = shortToBytes(((Acknowledge)message).getBlockNum())[1];
                 break;
-            case 5:
+            case 5://Error
                 encodedMessage[2] = shortToBytes(((Error)message).getErrorCode())[0];
                 encodedMessage[3] = shortToBytes(((Error)message).getErrorCode())[1];
                 tempBytes = ((Error)message).getErrorMsg().getBytes();
@@ -55,11 +51,10 @@ public class MessageEncoderDecoderTFTP implements MessageEncoderDecoder<Message>
                     encodedMessage[i + 4] = tempBytes[i];
                 }
                 encodedMessage[encodedMessage.length - 1] = 0;
-
                 if(((Error)message).getErrorMsg().contains("/0"))
                     encodedMessage=null;
                 break;
-            case 3:
+            case 3://Data
                 encodedMessage[2] = shortToBytes(((DataMessage)message).getDataSize())[0];
                 encodedMessage[3] = shortToBytes(((DataMessage)message).getDataSize())[1];
                 encodedMessage[4] = shortToBytes(((DataMessage)message).getBlockNum())[0];
@@ -69,65 +64,51 @@ public class MessageEncoderDecoderTFTP implements MessageEncoderDecoder<Message>
                 }
                 break;
         }
-
-//        for(int i=0;i<message.getPacketSize();
-//            i++)
-//        {
-//            System.out.println(encodedMessage[i]);
-//        }
-
         return encodedMessage;
     }
 
-    public Message decode(byte[] message){
+    private Message decode(byte[] message){
         Message decodeMessage;
         byte[] tempArray;
         int index;
         short opCode =bytesToShort(message);
-       //@@ System.out.println("opcode :"+opCode);
         switch(opCode){
-            case 1:
-            case 2:
-
-                 index = new String(Arrays.copyOfRange(message, 2,message.length)).indexOf('\0');
-
+            case 1://RRQ
+            case 2://WRQ
+                index = new String(Arrays.copyOfRange(message, 2,message.length)).indexOf('\0');
                 tempArray =  Arrays.copyOfRange(message, 2,index+2);
                 String fileName = new String(tempArray, StandardCharsets.UTF_8);
                 decodeMessage = new ReadWrite(opCode,fileName);
                 break;
-            case 3:
-
-
+            case 3://Data
                 short dataSize=bytesToShort(Arrays.copyOfRange(message,2,4));
                 short blockNum=bytesToShort(Arrays.copyOfRange(message,4,6));
                 tempArray =  Arrays.copyOfRange(message, 6,dataSize+6);
                 decodeMessage = new DataMessage(dataSize,blockNum,tempArray);
-              //@@  System.out.println("Data size : "+dataSize);
                 datePacketSize =0;
                 break;
-            case 4:
+            case 4://Acknowledge
                 decodeMessage = new Acknowledge(bytesToShort(Arrays.copyOfRange(message,2,4)));
                 break;
-            case 7:
-                 index = new String(Arrays.copyOfRange(message, 2,message.length)).indexOf('\0');
+            case 7://LOGRQ
+                index = new String(Arrays.copyOfRange(message, 2,message.length)).indexOf('\0');
                 tempArray =  Arrays.copyOfRange(message, 2,index + 2);
                 String username = new String(tempArray, StandardCharsets.UTF_8);
                 decodeMessage = new Login(username);
                 break;
-
-            case 8:
+            case 8://DELRQ
                 index = new String(Arrays.copyOfRange(message, 2,message.length)).indexOf('\0');
                 tempArray =  Arrays.copyOfRange(message, 2,index + 2);
                 String deleteFileName = new String(tempArray, StandardCharsets.UTF_8);
                 decodeMessage = new DeleteFile(deleteFileName);
                 break;
-            case 6:
+            case 6://DIRQ
                 decodeMessage = new DirRequest();
                 break;
-            case 10:
+            case 10://DISC
                 decodeMessage = new Disconnect();
                 break;
-            default:
+            default://unknown OpCode
                 decodeMessage = new Error((short) 4);
                 break;
 
@@ -137,7 +118,6 @@ public class MessageEncoderDecoderTFTP implements MessageEncoderDecoder<Message>
         this.opCode =0;
         return decodeMessage;
     }
-
 
     private short bytesToShort(byte[] byteArr)
     {
@@ -154,53 +134,40 @@ public class MessageEncoderDecoderTFTP implements MessageEncoderDecoder<Message>
         return bytesArr;
     }
 
-
-
     @Override
     public Message decodeNextByte(byte nextByte) {
-        //notice that the top 128 ascii characters have the same representation as their utf-8 counterparts
-        //this allow us to do the following comparison
-     //   System.out.println("nextbyte: "+nextByte);
-      //  System.out.println("len: "+len);
         pushByte(nextByte);
         if(len == 2) {
             opCode = bytesToShort(bytes);
-      //@@     System.out.println("opcode: "+opCode );
         }
         if(opCode != 0) {
             switch (opCode) {
-                case 1:
-                case 2:
-                case 7:
-                case 8:
-                    if (nextByte == '\0') {
-                       //@@ System.out.println(bytes.length +"length of bytes for opCode:"+opCode);
+                case 1://RRQ
+                case 2://WRQ
+                case 7://LOGRQ
+                case 8://DELRQ
+                    if (nextByte == '\0')
                         return decode(bytes);
-                    }
                     break;
-                case 3:
-                    if (len == 4) {
+                case 3://DATA
+                    if (len == 4)
                         datePacketSize = bytesToShort(Arrays.copyOfRange(bytes, 2, 4)) + 6;
-                    //@@    System.out.println("data packet size : "+datePacketSize);
-                    }
                     if (datePacketSize == len)
                         return decode(bytes);
                     if(len>datePacketSize)
                         new Error((short) 0);
                     break;
-                case 4:
+                case 4://Acknowledge
                     if (len == 4)
                         return decode(bytes);
                     break;
-                case 6:
-                case 10:
-                 //@@   System.out.println("case 6/10");
+                case 6://DIRQ
+                case 10://DISC
                     return decode(bytes);
                 default:
                     return decode(bytes);
             }
         }
-
         return null; //not a line yet
     }
 
@@ -208,7 +175,6 @@ public class MessageEncoderDecoderTFTP implements MessageEncoderDecoder<Message>
         if (len >= bytes.length) {
             bytes = Arrays.copyOf(bytes, len * 2);
         }
-
         bytes[len++] = nextByte;
     }
 

@@ -6,9 +6,6 @@ import bgu.spl171.net.srv.Server;
 
 import java.io.File;
 
-/**
- * Created by himelbrand on 1/9/17.
- */
 public class ReactorMain {
     public static void main(String[] args) {
         new File("Files/TempFiles").mkdirs();

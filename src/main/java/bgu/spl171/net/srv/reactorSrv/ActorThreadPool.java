@@ -18,6 +18,10 @@ public class ActorThreadPool {
     private final Set<Object> playingNow;
     private final ExecutorService threads;
 
+    /**
+     * Constructor
+     * @param threads the given number of threads
+     */
     public ActorThreadPool(int threads) {
         this.threads = Executors.newFixedThreadPool(threads);
         acts = new WeakHashMap<>();
@@ -25,6 +29,11 @@ public class ActorThreadPool {
         actsRWLock = new ReentrantReadWriteLock();
     }
 
+    /**
+     * submits a new task
+     * @param act the object associated with the task
+     * @param r the task to b submitted
+     */
     public void submit(Object act, Runnable r) {
         synchronized (act) {
             if (!playingNow.contains(act)) {
@@ -36,12 +45,14 @@ public class ActorThreadPool {
         }
     }
 
+    /**
+     * Shuts down the thread pool
+     */
     public void shutdown() {
         threads.shutdownNow();
     }
 
     private Queue<Runnable> pendingRunnablesOf(Object act) {
-
         actsRWLock.readLock().lock();
         Queue<Runnable> pendingRunnables = acts.get(act);
         actsRWLock.readLock().unlock();

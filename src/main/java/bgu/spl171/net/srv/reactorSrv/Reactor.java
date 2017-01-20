@@ -23,6 +23,13 @@ public class Reactor<T> implements Server<T> {
     private Thread selectorThread;
     private final ConcurrentLinkedQueue<Runnable> selectorTasks = new ConcurrentLinkedQueue<>();
 
+    /**
+     * Constructor
+     * @param numThreads the given number of threads
+     * @param port the given port number
+     * @param protocolFactory  wanted protocol factory
+     * @param readerFactory wanted encoder decoder factory
+     */
     public Reactor(
             int numThreads,
             int port,
@@ -53,23 +60,18 @@ public class Reactor<T> implements Server<T> {
                 runSelectionThreadTasks();
 
                 for (SelectionKey key : selector.selectedKeys()) {
-
-                    if (!key.isValid()) {
+                    if (!key.isValid())
                         continue;
-                    } else if (key.isAcceptable()) {
+                     else if (key.isAcceptable())
                         handleAccept(serverSock, selector);
-                    } else {
+                    else
                         handleReadWrite(key);
-                    }
-                    if(key.attachment() != null && ((NonBlockingConnectionHandler)(key.attachment())).getNeedsToBeClosed()){
+
+                    if(key.attachment() != null && ((NonBlockingConnectionHandler)(key.attachment())).getNeedsToBeClosed())
                         ((NonBlockingConnectionHandler)(key.attachment())).closeChanel();
 
-                    }
-
                 }
-
                 selector.selectedKeys().clear(); //clear the selected keys set so that we can know about new events
-
             }
 
         } catch (ClosedSelectorException ex) {
@@ -79,7 +81,6 @@ public class Reactor<T> implements Server<T> {
             ex.printStackTrace();
         }
 
-        System.out.println("server closed!!!");
         pool.shutdown();
     }
 
@@ -93,7 +94,6 @@ public class Reactor<T> implements Server<T> {
         }
     }
 
-
     private void handleAccept(ServerSocketChannel serverChan, Selector selector) throws IOException {
         SocketChannel clientChan = serverChan.accept();
         clientChan.configureBlocking(false);
@@ -103,11 +103,9 @@ public class Reactor<T> implements Server<T> {
                 clientChan,
                 this);
         int connectionID = myConnections.getConnectionsID();
-        myConnections.register(handler);//TODO:send to ActorPOOL not run this here
+        myConnections.register(handler);
         clientChan.register(selector, SelectionKey.OP_READ, handler);
-        pool.submit(handler,()->handler.getProtocol().start(connectionID,myConnections));
-
-        /// TODO : check if selector steal contain disconnected loggedOff records
+        pool.submit(handler,()->handler.getProtocol().start(connectionID,myConnections));//so the start wont be run by main thread
     }
 
     private void handleReadWrite(SelectionKey key) {

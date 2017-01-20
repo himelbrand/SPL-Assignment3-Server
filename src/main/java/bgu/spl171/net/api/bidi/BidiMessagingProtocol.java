@@ -1,20 +1,20 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package bgu.spl171.net.api.bidi;
 
 import java.io.FileNotFoundException;
 
-/**
- *
- * @author bennyl
- */
 public interface BidiMessagingProtocol<T>  {
-
+    /**
+     * starts the protocol for the connection ID
+     * @param connectionId the ID of the connection handler
+     * @param connections the connections associated with this protocol
+     */
     void start(int connectionId, Connections<T> connections);
-    
+
+    /**
+     * processes a message
+     * @param message the message to be processed
+     * @throws FileNotFoundException if file not found
+     */
     void process(T message) throws FileNotFoundException;
 	
 	/**

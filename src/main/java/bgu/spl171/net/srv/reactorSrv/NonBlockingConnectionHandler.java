@@ -29,6 +29,13 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
 
     private boolean needsToBeClosed = false;
 
+    /**
+     * Constructor
+     * @param reader the encoder decoder for this connection handler
+     * @param protocol the protocol for this connection handler
+     * @param chan the channel for this connection handler
+     * @param reactor the reactor for this connection handler
+     */
     public NonBlockingConnectionHandler(
             MessageEncoderDecoder<T> reader,
             BidiMessagingProtocol<T> protocol,
@@ -40,8 +47,10 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
         this.reactor = reactor;
     }
 
+    /**
+     * @return returns a read task if possible else returns null
+     */
     public Runnable continueRead() {
-        //@@ System.out.println("read by thread" + Thread.currentThread().getId());
         ByteBuffer buf = leaseBuffer();
 
         boolean success = false;
@@ -75,16 +84,23 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
 
     }
 
+    /**
+     * changes the boolean value of {@link NonBlockingConnectionHandler#needsToBeClosed} to true
+     */
     public void close() {
-//            System.out.println("close by thread" + Thread.currentThread().getId());
             needsToBeClosed = true;
     }
 
-
+    /**
+     * @return the boolean value of {@link NonBlockingConnectionHandler#needsToBeClosed}
+     */
     public boolean getNeedsToBeClosed(){
         return needsToBeClosed;
     }
 
+    /**
+     * closes {@link NonBlockingConnectionHandler#chan}
+     */
     public void closeChanel(){
         try {
             chan.close();
@@ -92,8 +108,11 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
             e.printStackTrace();
         }
     }
+
+    /**
+     * writes to channel if possible, if not then closes or changes to read
+     */
     public void continueWrite() {
-  //@@      System.out.println("write thread" + Thread.currentThread().getId());
         while (!writeQueue.isEmpty()) {
             try {
                 ByteBuffer top = writeQueue.peek();
@@ -134,6 +153,10 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
             writeQueue.add(ByteBuffer.wrap(encdec.encode(msg)));
             reactor.updateInterestedOps(chan, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
     }
+
+    /**
+     * @return {@link NonBlockingConnectionHandler#protocol}
+     */
     public BidiMessagingProtocol<T> getProtocol(){
         return protocol;
     }
